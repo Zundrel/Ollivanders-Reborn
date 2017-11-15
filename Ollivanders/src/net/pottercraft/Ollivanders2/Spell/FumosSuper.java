@@ -37,7 +37,6 @@ public abstract class FumosSuper extends Charms
    public FumosSuper (Ollivanders2 plugin, Player player, Spells name, Double rightWand)
    {
       super(plugin, player, name, rightWand);
-      moveEffect = Effect.SMOKE;
    }
 
    @Override
