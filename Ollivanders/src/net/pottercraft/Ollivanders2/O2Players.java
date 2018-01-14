@@ -1,5 +1,6 @@
 package net.pottercraft.Ollivanders2;
 
+import net.pottercraft.Ollivanders2.Spell.Spell;
 import net.pottercraft.Ollivanders2.Spell.Spells;
 
 import java.util.HashMap;
@@ -14,265 +15,257 @@ import java.util.ArrayList;
  * @since 2.2.5
  * @author Azami7
  */
-public class O2Players
-{
-   private Map<UUID, O2Player> O2PlayerMap = new HashMap<>();
+public class O2Players {
+	private Map<UUID, O2Player> O2PlayerMap = new HashMap<>();
 
-   private Ollivanders2 p;
+	private Ollivanders2 p;
 
-   private String nameLabel = "Name";
-   private String woodLabel = "Wood";
-   private String coreLabel = "Core";
-   private String wandSpellLabel = "WandSpell";
-   private String soulsLabel = "Souls";
-   private String invisibleLabel = "Invisible";
-   private String muggletonLabel = "Muggleton";
+	private String nameLabel = "Name";
+	private String woodLabel = "Wood";
+	private String coreLabel = "Core";
+	private String wandSpellLabel = "WandSpell";
+	private String soulsLabel = "Souls";
+	private String invisibleLabel = "Invisible";
+	private String muggletonLabel = "Muggleton";
 
-   public O2Players (Ollivanders2 plugin)
-   {
-      p = plugin;
-   }
+	public O2Players(Ollivanders2 plugin) {
+		p = plugin;
+	}
 
-   /**
-    * Add a new O2Player.
-    *
-    * @param pid
-    * @param name
-    */
-   public void addPlayer (UUID pid, String name)
-   {
-      if (pid == null || name == null)
-         return;
+	/**
+	 * Add a new O2Player.
+	 *
+	 * @param pid
+	 * @param name
+	 */
+	public void addPlayer(UUID pid, String name) {
+		if (pid == null || name == null)
+			return;
 
-      O2Player o2p = new O2Player(pid, name, p);
+		O2Player o2p = new O2Player(pid, name, p);
 
-      updatePlayer(pid, o2p);
-   }
+		updatePlayer(pid, o2p);
+	}
 
-   /**
-    * Update an existing O2Player.
-    *
-    * @param pid
-    * @param o2p
-    */
-   public synchronized void updatePlayer (UUID pid, O2Player o2p)
-   {
-      if (o2p == null)
-      {
-         return;
-      }
+	/**
+	 * Update an existing O2Player.
+	 *
+	 * @param pid
+	 * @param o2p
+	 */
+	public synchronized void updatePlayer(UUID pid, O2Player o2p) {
+		if (o2p == null) {
+			return;
+		}
 
-      if (!O2PlayerMap.containsKey(pid))
-      {
-         O2PlayerMap.put(pid, o2p);
-         p.getLogger().info("Added new O2Player " + o2p.getPlayerName());
-      }
-      else
-      {
-         O2PlayerMap.replace(pid, o2p);
-      }
-   }
+		if (!O2PlayerMap.containsKey(pid)) {
+			O2PlayerMap.put(pid, o2p);
+			p.getLogger().info("Added new O2Player " + o2p.getPlayerName());
+		} else {
+			O2PlayerMap.replace(pid, o2p);
+		}
+	}
 
-   /**
-    * Get an O2Player.
-    *
-    * @param pid
-    * @return the O2Player if found, null otherwise.
-    */
-   public O2Player getPlayer (UUID pid)
-   {
-      if (O2PlayerMap.containsKey(pid))
-      {
-         return O2PlayerMap.get(pid);
-      }
-      else
-      {
-         return null;
-      }
-   }
+	/**
+	 * Get an O2Player.
+	 *
+	 * @param pid
+	 * @return the O2Player if found, null otherwise.
+	 */
+	public O2Player getPlayer(UUID pid) {
+		if (O2PlayerMap.containsKey(pid)) {
+			return O2PlayerMap.get(pid);
+		} else {
+			return null;
+		}
+	}
 
-   /**
-    * Get a list of all player unique ids.
-    *
-    * @return
-    */
-   public ArrayList<UUID> getPlayerIDs ()
-   {
-      ArrayList<UUID> ids = new ArrayList<>();
+	/**
+	 * Get a list of all player unique ids.
+	 *
+	 * @return
+	 */
+	public ArrayList<UUID> getPlayerIDs() {
+		ArrayList<UUID> ids = new ArrayList<>();
 
-      for (UUID id : O2PlayerMap.keySet())
-      {
-         ids.add(id);
-      }
+		for (UUID id : O2PlayerMap.keySet()) {
+			ids.add(id);
+		}
 
-      return ids;
-   }
+		return ids;
+	}
 
-   public void saveO2Players()
-   {
-      // serialize the player map
-      Map <String, Map<String, String>> serializedMap = serializeO2Players(O2PlayerMap);
+	public void saveO2Players() {
+		// serialize the player map
+		Map<String, Map<String, String>> serializedMap = serializeO2Players(O2PlayerMap);
 
-      GsonDataPersistenceLayer gsonLayer = new GsonDataPersistenceLayer(p);
-      gsonLayer.writeO2Players(serializedMap);
-   }
+		GsonDataPersistenceLayer gsonLayer = new GsonDataPersistenceLayer(p);
+		gsonLayer.writeO2Players(serializedMap);
+	}
 
-   public void loadO2Players ()
-   {
-      GsonDataPersistenceLayer gsonLayer = new GsonDataPersistenceLayer(p);
+	public void loadO2Players() {
+		GsonDataPersistenceLayer gsonLayer = new GsonDataPersistenceLayer(p);
 
-      // load players from the save file, if it exists
-      Map <String, Map<String, String>> serializedMap = gsonLayer.readO2Players();
+		// load players from the save file, if it exists
+		Map<String, Map<String, String>> serializedMap = gsonLayer
+				.readO2Players();
 
-      if (serializedMap == null || serializedMap.size() < 1)
-      {
-         p.getLogger().info("No saved O2Players, checking for legacy OPlayers save file.");
-         Map<UUID, OPlayer> OPlayerMap = new HashMap<>();
-         try
-         {
-            OPlayerMap = (HashMap<UUID, OPlayer>) Ollivanders2.SLAPI.load("plugins/Ollivanders2/OPlayerMap.bin");
-            p.getLogger().info("Loaded save file OPlayerMap.bin");
-         }
-         catch (Exception e)
-         {
-            p.getLogger().warning("Did not find OPlayerMap.bin");
-         }
+		if (serializedMap == null || serializedMap.size() < 1) {
+			p.getLogger()
+					.info("No saved O2Players, checking for legacy OPlayers save file.");
+			Map<UUID, OPlayer> OPlayerMap = new HashMap<>();
+			try {
+				OPlayerMap = (HashMap<UUID, OPlayer>) Ollivanders2.SLAPI
+						.load("plugins/Ollivanders2/OPlayerMap.bin");
+				p.getLogger().info("Loaded save file OPlayerMap.bin");
+			} catch (Exception e) {
+				p.getLogger().warning("Did not find OPlayerMap.bin");
+			}
 
-         updateLegacyPlayers(OPlayerMap);
-      }
-   }
+			updateLegacyPlayers(OPlayerMap);
+		} else if (serializedMap != null && serializedMap.size() >= 1) {
+			for (Entry<String, Map<String, String>> json : serializedMap.entrySet()) {
+				UUID pid = UUID.fromString(json.getKey());
+				O2Player o2Player = new O2Player(pid, p.getServer()
+						.getOfflinePlayer(pid).getName(), p);
+				
+				for (Entry<String, String> values : json.getValue().entrySet()) {
+					Spells spell = Spells.decode(values.getKey());
+					if (spell != null) {
+						o2Player.setSpellCount(spell, Integer.parseInt(values.getValue()));
+					} else if (spell == null && values.getKey().equals("Wood")) {
+						o2Player.setWandWood(values.getValue());
+					} else if (spell == null && values.getKey().equals("Core")) {
+						o2Player.setWandCore(values.getValue());
+					} else if (spell == null && values.getKey().equals("Souls")) {
+						o2Player.setSouls(Integer.parseInt(values.getValue()));
+					} else if (spell == null && values.getKey().equals("Muggleton")) {
+						o2Player.setMuggleton(Boolean.parseBoolean(values.getValue()));
+					} else if (spell == null && values.getKey().equals("Invisible")) {
+						o2Player.setInvisible(Boolean.parseBoolean(values.getValue()));
+					}
+				}
 
-   private void updateLegacyPlayers (Map<UUID, OPlayer> OPlayerMap)
-   {
-      for (Entry <UUID, OPlayer> e : OPlayerMap.entrySet())
-      {
-         UUID pid = e.getKey();
-         if (O2PlayerMap.containsKey(pid))
-         {
-            continue;
-         }
+				O2PlayerMap.put(pid, o2Player);
+			}
+		}
+	}
 
-         String playerName = p.getServer().getOfflinePlayer(pid).getName();
-         if (playerName == null)
-         {
-            continue;
-         }
+	private void updateLegacyPlayers(Map<UUID, OPlayer> OPlayerMap) {
+		for (Entry<UUID, OPlayer> e : OPlayerMap.entrySet()) {
+			UUID pid = e.getKey();
+			if (O2PlayerMap.containsKey(pid)) {
+				continue;
+			}
 
-         OPlayer player = e.getValue();
+			String playerName = p.getServer().getOfflinePlayer(pid).getName();
+			if (playerName == null) {
+				continue;
+			}
 
-         O2Player o2p = new O2Player(pid, playerName, p);
+			OPlayer player = e.getValue();
 
-         o2p.setSouls(player.getSouls());
-         o2p.setInvisible(player.isInvisible());
-         o2p.setMuggleton(player.isMuggleton());
-         o2p.setSpell(player.getSpell());
+			O2Player o2p = new O2Player(pid, playerName, p);
 
-         Map <Spells, Integer> spells = player.getSpellCount();
-         for (Entry<Spells, Integer> s : spells.entrySet())
-         {
-            Spells spell = s.getKey();
-            int count = s.getValue().intValue();
+			o2p.setSouls(player.getSouls());
+			o2p.setInvisible(player.isInvisible());
+			o2p.setMuggleton(player.isMuggleton());
+			o2p.setSpell(player.getSpell());
 
-            if (count > 0)
-            {
-               o2p.setSpellCount(spell, count);
-            }
-         }
+			Map<Spells, Integer> spells = player.getSpellCount();
+			for (Entry<Spells, Integer> s : spells.entrySet()) {
+				Spells spell = s.getKey();
+				int count = s.getValue().intValue();
 
-         O2PlayerMap.put(pid, o2p);
-      }
-   }
+				if (count > 0) {
+					o2p.setSpellCount(spell, count);
+				}
+			}
 
-   /**
-    * Serialize the O2Player to a list of key value pairs for all the data we want to save.
-    *
-    * Map structure:
-    * Key - UUID
-    * ArrayList {{
-    *    Name : playerName
-    *    WandWood : wandWood
-    *    WandCore : wandCore
-    *    WandSpell: spell
-    *    Souls : souls
-    *    Invisible : invisible
-    *    Muggleton : muggleton
-    *    [Spell] : [Count]
-    * }};
-    * @param o2PlayerMap
-    * @return
-    */
-   private Map <String, Map<String, String>> serializeO2Players (Map<UUID, O2Player> o2PlayerMap)
-   {
-      Map <String, Map<String, String>> serializedMap = new HashMap<>();
+			O2PlayerMap.put(pid, o2p);
+		}
+	}
 
-      if (p.debug)
-         p.getLogger().info("Serializing O2Players...");
+	/**
+	 * Serialize the O2Player to a list of key value pairs for all the data we
+	 * want to save.
+	 *
+	 * Map structure: Key - UUID ArrayList {{ Name : playerName WandWood :
+	 * wandWood WandCore : wandCore WandSpell: spell Souls : souls Invisible :
+	 * invisible Muggleton : muggleton [Spell] : [Count] }};
+	 * 
+	 * @param o2PlayerMap
+	 * @return
+	 */
+	private Map<String, Map<String, String>> serializeO2Players(
+			Map<UUID, O2Player> o2PlayerMap) {
+		Map<String, Map<String, String>> serializedMap = new HashMap<>();
 
-      for (Map.Entry<UUID, O2Player> e : o2PlayerMap.entrySet())
-      {
-         UUID pid = e.getKey();
-         O2Player o2p = e.getValue();
+		if (p.debug)
+			p.getLogger().info("Serializing O2Players...");
 
-         Map<String, String> playerData = new HashMap<>();
+		for (Map.Entry<UUID, O2Player> e : o2PlayerMap.entrySet()) {
+			UUID pid = e.getKey();
+			O2Player o2p = e.getValue();
 
-         /**
-          * Name
-          */
-         String pName = o2p.getPlayerName();
-         if (p.debug)
-            p.getLogger().info("\tAdding " + pName + "...");
+			Map<String, String> playerData = new HashMap<>();
 
-         playerData.put(nameLabel, pName);
+			/**
+			 * Name
+			 */
+			String pName = o2p.getPlayerName();
+			if (p.debug)
+				p.getLogger().info("\tAdding " + pName + "...");
 
-         /**
-          * Wand
-          */
-         playerData.put(woodLabel, o2p.getWandWood());
-         playerData.put(coreLabel, o2p.getWandCore());
+			playerData.put(nameLabel, pName);
 
-         /**
-          * Wand Spell
-          */
-         //OPlayer oPlayer = p.getOPlayer(pid);
-         Spells wandSpell = o2p.getSpell();
-         if (wandSpell != null)
-         {
-            playerData.put(wandSpellLabel, wandSpell.toString());
-         }
+			/**
+			 * Wand
+			 */
+			playerData.put(woodLabel, o2p.getWandWood());
+			playerData.put(coreLabel, o2p.getWandCore());
 
-         /**
-          * Souls
-          */
-         Integer souls = new Integer(o2p.getSouls());
-         playerData.put(soulsLabel, souls.toString());
+			/**
+			 * Wand Spell
+			 */
+			// OPlayer oPlayer = p.getOPlayer(pid);
+			Spells wandSpell = o2p.getSpell();
+			if (wandSpell != null) {
+				playerData.put(wandSpellLabel, wandSpell.toString());
+			}
 
-         /**
-          * Invisible
-          */
-         Boolean invisible = new Boolean(o2p.isInvisible());
-         playerData.put(invisibleLabel, invisible.toString());
+			/**
+			 * Souls
+			 */
+			Integer souls = new Integer(o2p.getSouls());
+			playerData.put(soulsLabel, souls.toString());
 
-         /**
-          * Muggleton
-          */
-         Boolean muggleton = new Boolean(o2p.isMuggleton());
-         playerData.put(muggletonLabel, muggleton.toString());
+			/**
+			 * Invisible
+			 */
+			Boolean invisible = new Boolean(o2p.isInvisible());
+			playerData.put(invisibleLabel, invisible.toString());
 
-         /**
-          * Spell Experience
-          */
-         Map<Spells, Integer> spells = o2p.getKnownSpells();
-         if (spells != null)
-         {
-            for (Entry<Spells, Integer> s : spells.entrySet())
-            {
-               playerData.put(s.getKey().toString(), s.getValue().toString());
-            }
-         }
+			/**
+			 * Muggleton
+			 */
+			Boolean muggleton = new Boolean(o2p.isMuggleton());
+			playerData.put(muggletonLabel, muggleton.toString());
 
-         serializedMap.put(pid.toString(), playerData);
-      }
+			/**
+			 * Spell Experience
+			 */
+			Map<Spells, Integer> spells = o2p.getKnownSpells();
+			if (spells != null) {
+				for (Entry<Spells, Integer> s : spells.entrySet()) {
+					playerData.put(s.getKey().toString(), s.getValue()
+							.toString());
+				}
+			}
 
-      return serializedMap;
-   }
+			serializedMap.put(pid.toString(), playerData);
+		}
+
+		return serializedMap;
+	}
 }

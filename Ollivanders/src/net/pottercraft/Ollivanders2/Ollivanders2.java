@@ -81,6 +81,7 @@ public class Ollivanders2 extends JavaPlugin
     *
     * Primary functions are to reset transfigured blocks back to their correct type and save plugin data to disk.
     */
+   @Override
    public void onDisable ()
    {
 	   for (Block block : tempBlocks)

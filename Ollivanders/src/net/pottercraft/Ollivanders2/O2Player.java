@@ -86,10 +86,24 @@ public class O2Player
    {
       return wandWood;
    }
+   
+   public void setWandWood (String wandWood)
+   {
+      if (wandWood != null) {
+    	  this.wandWood = wandWood;
+      }
+   }
 
    public String getWandCore ()
    {
       return wandCore;
+   }
+   
+   public void setWandCore (String wandCore)
+   {
+      if (wandCore != null) {
+    	  this.wandCore = wandCore;
+      }
    }
 
    public String getPlayerName ()

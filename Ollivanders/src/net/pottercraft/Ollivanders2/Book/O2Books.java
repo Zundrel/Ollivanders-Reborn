@@ -197,7 +197,7 @@ public final class O2Books
          Spells spellEnum = Spells.decode(spell);
 
          // if spell count is less than 25, learn this spell
-         if (o2p.getSpellCount(spellEnum) < 25)
+         if (o2p.getSpellCount(spellEnum) < 1)
          {
             // check to see if they have the Wit-Sharpening Potion effect
             boolean witSharpening = false;

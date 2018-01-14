@@ -1,35 +1,82 @@
 package net.pottercraft.Ollivanders2;
 
-import net.pottercraft.Ollivanders2.Book.O2Books;
-import net.pottercraft.Ollivanders2.Effect.*;
-import net.pottercraft.Ollivanders2.Spell.*;
-import net.pottercraft.Ollivanders2.StationarySpell.*;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
+import net.pottercraft.Ollivanders2.Book.O2Books;
+import net.pottercraft.Ollivanders2.Book.SpellBookParser;
+import net.pottercraft.Ollivanders2.Effect.BARUFFIOS_BRAIN_ELIXIR;
+import net.pottercraft.Ollivanders2.Effect.LYCANTHROPY;
+import net.pottercraft.Ollivanders2.Effect.MEMORY_POTION;
+import net.pottercraft.Ollivanders2.Effect.WIT_SHARPENING_POTION;
+import net.pottercraft.Ollivanders2.Effect.WOLFSBANE_POTION;
+import net.pottercraft.Ollivanders2.Spell.MORTUOS_SUSCITATE;
+import net.pottercraft.Ollivanders2.Spell.PORTUS;
+import net.pottercraft.Ollivanders2.Spell.SpellProjectile;
+import net.pottercraft.Ollivanders2.Spell.Spells;
+import net.pottercraft.Ollivanders2.Spell.Transfiguration;
 import net.pottercraft.Ollivanders2.StationarySpell.ALIQUAM_FLOO;
 import net.pottercraft.Ollivanders2.StationarySpell.COLLOPORTUS;
+import net.pottercraft.Ollivanders2.StationarySpell.MOLLIARE;
 import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_APPAREBIT;
 import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_EVANESCUNT;
 import net.pottercraft.Ollivanders2.StationarySpell.PROTEGO_TOTALUM;
 import net.pottercraft.Ollivanders2.StationarySpell.REPELLO_MUGGLETON;
-import net.pottercraft.Ollivanders2.StationarySpell.MOLLIARE;
-import org.bukkit.*;
+import net.pottercraft.Ollivanders2.StationarySpell.StationarySpellObj;
+import net.pottercraft.Ollivanders2.StationarySpell.StationarySpells;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Creature;
+import org.bukkit.entity.Damageable;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Ocelot;
+import org.bukkit.entity.Parrot;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
-import org.bukkit.event.entity.*;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.player.*;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
-
-import java.lang.reflect.Constructor;
-import java.util.*;
 
 /**
  * Listener for events from the plugin
@@ -37,6 +84,7 @@ import java.util.*;
  * @author lownes
  * @author Azami7
  */
+@SuppressWarnings("deprecation")
 public class OllivandersListener implements Listener
 {
 
@@ -145,137 +193,118 @@ public class OllivandersListener implements Listener
    @EventHandler(priority = EventPriority.LOW)
    public void onPlayerChat (AsyncPlayerChatEvent event)
    {
-      Player sender = event.getPlayer();
-      String message = event.getMessage();
-      List<OEffect> effects = p.getO2Player(sender).getEffects();
+      //Begin code for chat falloff
+	      Player sender = event.getPlayer();
+	      String message = event.getMessage();
+	      List<OEffect> effects = p.getO2Player(sender).getEffects();
+	      if (effects != null)
+	      {
+	         for (OEffect effect : effects)
+	         {
+	            if (effect.name == Effects.SILENCIO)
+	            {
+	               if (sender.isPermissionSet("Ollivanders2.BYPASS"))
+	               {
+	                  if (!sender.hasPermission("Ollivanders2.BYPASS"))
+	                  {
+	                     event.getRecipients().clear();
+	                     return;
+	                  }
+	               }
+	               else
+	               {
+	                  event.getRecipients().clear();
+	                  return;
+	               }
+	            }
+	         }
+	      }
+	      Set<Player> recipients = event.getRecipients();
+	      String[] messageWords = message.split(" ");
+	      Spells spell;
+	      //getLogger().info("Decoding spell");
+	      spell = Spells.decode(message);
+	      if (messageWords[0].equalsIgnoreCase("Apparate"))
+	      {
+	         event.setMessage(messageWords[0]);
+	         spell = Spells.APPARATE;
+	      }
+	      else if (messageWords[0].equalsIgnoreCase("Portus"))
+	      {
+	         event.setMessage(messageWords[0]);
+	         spell = Spells.PORTUS;
+	      }
+	      if (spell != null)
+	      {
+	         if (!p.canCast(sender, spell, true))
+	         {
+	            spell = null;
+	         }
+	      }
+	      double chatDistance = (double) p.getChatDistance();
+	      List<StationarySpellObj> stationaries = p.checkForStationary(sender.getLocation());
+	      Set<StationarySpellObj> muffliatos = new HashSet<StationarySpellObj>();
+	      for (StationarySpellObj stationary : stationaries)
+	      {
+	         if (stationary.name.equals(StationarySpells.MUFFLIATO) && stationary.active)
+	         {
+	            muffliatos.add(stationary);
+	         }
+	      }
+	      Set<Player> remRecipients = new HashSet<Player>();
+	      for (Player recipient : recipients)
+	      {
+	         double distance;
+	         try
+	         {
+	            distance = recipient.getLocation().distance(sender.getLocation());
+	         }
+	         catch (IllegalArgumentException e)
+	         {
+	            distance = -1;
+	         }
+	         if (spell != null)
+	         {
+	            if (distance > chatDistance || distance == -1)
+	            {
+	               remRecipients.add(recipient);
+	            }
+	         }
+	         if (muffliatos.size() > 0)
+	         {
+	            for (StationarySpellObj muffliato : muffliatos)
+	            {
+	               Location recLoc = recipient.getLocation();
+	               if (!muffliato.isInside(recLoc))
+	               {
+	                  remRecipients.add(recipient);
+	               }
+	            }
+	         }
+	      }
 
-      if (Ollivanders2.debug)
-      {
-         p.getLogger().info("onPlayerChat: message = " + message);
-      }
-
-      /**
-       * Handle player spells that effect the chat.  Need to do this first sine they may affect the chat
-       * message itself, which would change later chat effects.
-       */
-      if (effects != null)
-      {
-         if (Ollivanders2.debug)
-         {
-            p.getLogger().info("onPlayerChat: Handling player effects");
-         }
-
-         for (OEffect effect : effects)
-         {
-            // If SILENCIO is affecting the player, remove all chat recipients and do not allow a spell cast.
-            if (effect.name == Effects.SILENCIO)
-            {
-               if (Ollivanders2.debug)
-               {
-                  p.getLogger().info("onPlayerChat: SILENCIO");
-               }
-
-               if (sender.isPermissionSet("Ollivanders2.BYPASS"))
-               {
-                  if (!sender.hasPermission("Ollivanders2.BYPASS"))
-                  {
-                     event.getRecipients().clear();
-                     return;
-                  }
-               }
-               else
-               {
-                  event.getRecipients().clear();
-                  return;
-               }
-            }
-         }
-      }
-
-      /**
-       * Parse to see if they were casting a spell
-       */
-      Spells spell = Spells.decode(message);
-      if (Ollivanders2.debug)
-      {
-         if (spell != null)
-         {
-            p.getLogger().info("Spells:decode(): spell is " + spell);
-         }
-         else
-         {
-            p.getLogger().info("Spells:decode(): no spell found");
-         }
-      }
-
-      /**
-       * Handle stationary spells that affect chat
-       */
-      Set<Player> recipients = event.getRecipients();
-      List<StationarySpellObj> stationaries = p.checkForStationary(sender.getLocation());
-      Set<StationarySpellObj> muffliatos = new HashSet<>();
-      for (StationarySpellObj stationary : stationaries)
-      {
-         if (Ollivanders2.debug)
-         {
-            p.getLogger().info("onPlayerChat: handling stationary spells");
-         }
-
-         if (stationary.name.equals(StationarySpells.MUFFLIATO) && stationary.active)
-         {
-            muffliatos.add(stationary);
-         }
-      }
-
-      // If sender is in a MUFFLIATO, remove recepients not also in the MUFFLIATO radius
-      Set<Player> remRecipients = new HashSet<>();
-      for (Player recipient : recipients)
-      {
-         if (muffliatos.size() > 0)
-         {
-            if (Ollivanders2.debug)
-            {
-               p.getLogger().info("onPlayerChat: MUFFLIATO detected");
-            }
-
-            for (StationarySpellObj muffliato : muffliatos)
-            {
-               Location recLoc = recipient.getLocation();
-               if (!muffliato.isInside(recLoc))
-               {
-                  remRecipients.add(recipient);
-               }
-            }
-         }
-      }
-
-      for (Player remRec : remRecipients)
-      {
-         if (Ollivanders2.debug)
-         {
-            p.getLogger().info("onPlayerChat: update recipients");
-         }
-
-         try
-         {
-            if (remRec.isPermissionSet("Ollivanders2.BYPASS"))
-            {
-               if (!remRec.hasPermission("Ollivanders2.BYPASS"))
-               {
-                  recipients.remove(remRec);
-               }
-            }
-            else
-            {
-               recipients.remove(remRec);
-            }
-         }
-         catch (UnsupportedOperationException e)
-         {
-            p.getLogger().warning("Chat was unable to be removed due "
-                  + "to a unmodifiable set.");
-         }
-      }
+	      for (Player remRec : remRecipients)
+	      {
+	         try
+	         {
+	            if (remRec.isPermissionSet("Ollivanders2.BYPASS"))
+	            {
+	               if (!remRec.hasPermission("Ollivanders2.BYPASS"))
+	               {
+	                  recipients.remove(remRec);
+	               }
+	            }
+	            else
+	            {
+	               recipients.remove(remRec);
+	            }
+	         } catch (UnsupportedOperationException e)
+	         {
+	            p.getLogger().warning("Chat was unable to be removed due "
+	                  + "to a unmodifiable set.");
+	         }
+	      }
+	      //End code for chat falloff
 
 
       /**
@@ -322,10 +351,12 @@ public class OllivandersListener implements Listener
             if (spell == Spells.APPARATE)
             {
                apparate(sender, words);
+               spell = null;
             }
             else if (spell == Spells.PORTUS)
             {
                p.addProjectile(new PORTUS(p, sender, Spells.PORTUS, 1.0, words));
+               spell = null;
             }
             else
             {
@@ -458,7 +489,7 @@ public class OllivandersListener implements Listener
     *
     * @param event Chat event of type AsyncPlayerChatEvent
     */
-   @EventHandler(priority = EventPriority.HIGHEST)
+@EventHandler(priority = EventPriority.HIGHEST)
    public void owlPost (AsyncPlayerChatEvent event)
    {
       Player sender = event.getPlayer();
@@ -602,7 +633,7 @@ public class OllivandersListener implements Listener
       }
    }
 
-   @EventHandler(priority = EventPriority.HIGHEST)
+@EventHandler(priority = EventPriority.HIGHEST)
    public void onPlayerInteract (PlayerInteractEvent event)
    {
       Player player = event.getPlayer();
@@ -644,6 +675,7 @@ public class OllivandersListener implements Listener
             }
 
             createSpellProjectile(player, spell, wandC);
+            o2p.setSpell(null);
             int spellc = p.getSpellNum(player, spell);
             if (spellc < 100 || spell == Spells.AVADA_KEDAVRA || !playerHoldsWand)
             {
@@ -676,7 +708,105 @@ public class OllivandersListener implements Listener
                player.getWorld().playSound(location, Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
          }
+         
+       //Toggle between known spells
+         Spells[] spells = Spells.values();
+         List<Spells> knownSpells = new ArrayList<Spells>();
+         for (Spells spell : spells)
+         {
+            if (p.getSpellNum(event.getPlayer(), spell) >= 100)
+            {
+               //if (spell != Spells.AVADA_KEDAVRA && spell != Spells.CRUCIO && spell != Spells.IMPERIO){
+               if (spell != Spells.AVADA_KEDAVRA)
+               {
+                  knownSpells.add(spell);
+               }
+            }
+         }
+         if (knownSpells.size() > 0)
+         {
+            O2Player oplayer = p.getO2Player(event.getPlayer());
+            Spells spell = oplayer.getSpell();
+            int ind = knownSpells.indexOf(spell);
+            if (ind == -1)
+            {
+               oplayer.setSpell(knownSpells.get(0));
+            }
+            else
+            {
+               int offset = 1;
+               if (event.getPlayer().isSneaking())
+               {
+                  offset = -1;
+               }
+               oplayer.setSpell(knownSpells.get((ind + offset) % knownSpells.size()));
+            }
+            p.setO2Player(event.getPlayer(), oplayer);
+            event.getPlayer().sendMessage(ChatColor.getByChar(p.getConfig().getString("chatColor")) + Spells.firstLetterCapitalize(Spells.recode(oplayer.getSpell())));
+         }
       }
+      
+      //Turns books with the name 'Spell Journal' into a book which shows spell count.
+      
+      ItemStack item = event.getItem();
+      if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) && (item != null))
+      {
+         if (item.getType() == Material.WRITTEN_BOOK)
+         {
+            ItemMeta imeta = item.getItemMeta();
+            BookMeta bookM = (BookMeta) imeta;
+            if (bookM.getAuthor().equals("cakenggt"))
+            {
+               for (ItemStack madeBook : SpellBookParser.makeBooks(1))
+               {
+                  if (((BookMeta) madeBook.getItemMeta()).getTitle().equals(bookM.getTitle()))
+                  {
+                     if (item.getAmount() != 1)
+                     {
+                        madeBook.setAmount(item.getAmount());
+                     }
+                     player.getInventory().setItemInMainHand(madeBook);
+                     imeta = madeBook.getItemMeta();
+                     break;
+                  }
+               }
+            }
+            SpellBookParser.decode(p, player, imeta);
+            if (bookM.getTitle().equalsIgnoreCase("Spell Journal"))
+            {
+               player.getInventory().setItemInMainHand(makeJournal(event.getPlayer()));
+            }
+         }
+      }
+   }
+   
+   /**
+    * Rewrites the journal book full of the player's experience.
+    *
+    * @param player = Player reading the book.
+    * @return Itemstack of the completed journal.
+    */
+public ItemStack makeJournal (Player player)
+   {
+      ItemStack hand = player.getInventory().getItemInMainHand();
+      int amount = hand.getAmount();
+      ItemStack journal = new ItemStack(Material.WRITTEN_BOOK, amount);
+      BookMeta journalM = (BookMeta) journal.getItemMeta();
+      journalM.setTitle("Spell Journal");
+      journalM.setAuthor(player.getName());
+      O2Player op = p.getO2Player(player);
+      StringBuilder sb = new StringBuilder();
+      for (Spells spell : op.getKnownSpells().keySet())
+      {
+         if (op.getKnownSpells().get(spell) > 0)
+         {
+            sb.append(Spells.firstLetterCapitalize(Spells.recode(spell)) + " : " + op.getKnownSpells().get(spell) + "\n");
+         }
+      }
+      String longPage = sb.toString();
+      journalM.setPages(SpellBookParser.splitEqually(longPage, 250));
+      journal.setItemMeta(journalM);
+      return journal;
    }
 
    @EventHandler(priority = EventPriority.HIGHEST)
@@ -684,8 +814,6 @@ public class OllivandersListener implements Listener
    {
       //Map<UUID, OPlayer> map = p.getOPlayerMap();
       Player player = event.getPlayer();
-      UUID pid = player.getUniqueId();
-
       O2Player o2p = p.getO2Player(player);
 
       p.setPlayerTeamColor(event.getPlayer());
@@ -940,7 +1068,6 @@ public class OllivandersListener implements Listener
     * @param event - BlockPistonRetractEvent
     */
    @EventHandler(priority = EventPriority.HIGHEST)
-   @SuppressWarnings("deprecation")
    public void onColloPistonRetract (BlockPistonRetractEvent event)
    {
       if (event.isSticky())
@@ -1352,7 +1479,7 @@ public class OllivandersListener implements Listener
          ItemStack heldItem = player.getInventory().getItemInMainHand();
          if (heldItem.getType() == Material.WRITTEN_BOOK)
          {
-            if (p.debug)
+            if (Ollivanders2.debug)
                p.getLogger().info(player.getDisplayName() + " reading a book and book learning is enabled.");
 
             // reading a book, if it is a spell book we want to let the player "learn" the spell.
