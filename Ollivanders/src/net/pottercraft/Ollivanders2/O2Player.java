@@ -171,10 +171,7 @@ public class O2Player
 
    public void setSpell (Spells spell)
    {
-      if (spell != null)
-      {
-         wandSpell = spell;
-      }
+      wandSpell = spell;
    }
 
    public boolean isInvisible ()
