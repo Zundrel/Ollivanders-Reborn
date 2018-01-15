@@ -9,25 +9,21 @@ import net.pottercraft.Ollivanders2.Ollivanders2;
  *
  * @author lownes
  */
-public class VENTO_FOLIO extends OEffect implements Effect
-{
-   public VENTO_FOLIO (org.bukkit.entity.Player sender, Effects effect, int duration)
-   {
-      super(sender, effect, duration);
-   }
+public class VENTO_FOLIO extends OEffect implements Effect {
+	private static final long serialVersionUID = -8980235274908494024L;
 
-   @Override
-   public void checkEffect (Ollivanders2 p, org.bukkit.entity.Player owner)
-   {
-      age(1);
-      if (duration > 1)
-      {
-         owner.setAllowFlight(true);
-         owner.getWorld().playEffect(owner.getLocation(), org.bukkit.Effect.SMOKE, 4);
-      }
-      else
-      {
-         owner.setAllowFlight(false);
-      }
-   }
+	public VENTO_FOLIO(org.bukkit.entity.Player sender, Effects effect, int duration) {
+		super(sender, effect, duration);
+	}
+
+	@Override
+	public void checkEffect(Ollivanders2 p, org.bukkit.entity.Player owner) {
+		age(1);
+		if (duration > 1) {
+			owner.setAllowFlight(true);
+			owner.getWorld().playEffect(owner.getLocation(), org.bukkit.Effect.SMOKE, 4);
+		} else {
+			owner.setAllowFlight(false);
+		}
+	}
 }

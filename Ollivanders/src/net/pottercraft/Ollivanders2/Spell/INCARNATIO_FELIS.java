@@ -14,29 +14,27 @@ import net.pottercraft.Ollivanders2.Ollivanders2;
  * @version Ollivanders2
  * @author lownes
  */
-public final class INCARNATIO_FELIS extends IncarnatioSuper
-{
-   /**
-    * Default constructor for use in generating spell text.  Do not use to cast the spell.
-    */
-   public INCARNATIO_FELIS ()
-   {
-      super();
+public final class INCARNATIO_FELIS extends IncarnatioSuper {
+	/**
+	 * Default constructor for use in generating spell text. Do not use to cast
+	 * the spell.
+	 */
+	public INCARNATIO_FELIS() {
+		super();
 
-      text = "Turns target player in to an ocelot or cat.";
-   }
+		text = "Turns target player in to an ocelot or cat.";
+	}
 
-   /**
-    * Constructor for casting the spell.
-    *
-    * @param plugin
-    * @param player
-    * @param name
-    * @param rightWand
-    */
-   public INCARNATIO_FELIS(Ollivanders2 plugin, Player player, Spells name, Double rightWand)
-   {
-      super(plugin, player, name, rightWand);
-      effect = new net.pottercraft.Ollivanders2.Effect.INCARNATIO_FELIS(player, Effects.INCARNATIO_FELIS, 1);
-   }
+	/**
+	 * Constructor for casting the spell.
+	 *
+	 * @param plugin
+	 * @param player
+	 * @param name
+	 * @param rightWand
+	 */
+	public INCARNATIO_FELIS(Ollivanders2 plugin, Player player, Spells name, Double rightWand) {
+		super(plugin, player, name, rightWand);
+		effect = new net.pottercraft.Ollivanders2.Effect.INCARNATIO_FELIS(player, Effects.INCARNATIO_FELIS, 1);
+	}
 }

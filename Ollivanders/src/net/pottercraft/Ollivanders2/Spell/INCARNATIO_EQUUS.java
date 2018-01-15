@@ -13,28 +13,26 @@ import net.pottercraft.Ollivanders2.Ollivanders2;
  * @see IncarnatioSuper
  * @author Azami7
  */
-public final class INCARNATIO_EQUUS extends IncarnatioSuper
-{
-   /**
-    * Default constructor for use in generating spell text.  Do not use to cast the spell.
-    */
-   public INCARNATIO_EQUUS ()
-   {
-      super();
-      text = "Turns target player in to a horse.";
-   }
+public final class INCARNATIO_EQUUS extends IncarnatioSuper {
+	/**
+	 * Default constructor for use in generating spell text. Do not use to cast
+	 * the spell.
+	 */
+	public INCARNATIO_EQUUS() {
+		super();
+		text = "Turns target player in to a horse.";
+	}
 
-   /**
-    * Constructor for casting the spell.
-    *
-    * @param plugin
-    * @param player
-    * @param name
-    * @param rightWand
-    */
-   public INCARNATIO_EQUUS(Ollivanders2 plugin, Player player, Spells name, Double rightWand)
-   {
-      super(plugin, player, name, rightWand);
-      effect = new net.pottercraft.Ollivanders2.Effect.INCARNATIO_EQUUS(player, Effects.INCARNATIO_EQUUS, 1);
-   }
+	/**
+	 * Constructor for casting the spell.
+	 *
+	 * @param plugin
+	 * @param player
+	 * @param name
+	 * @param rightWand
+	 */
+	public INCARNATIO_EQUUS(Ollivanders2 plugin, Player player, Spells name, Double rightWand) {
+		super(plugin, player, name, rightWand);
+		effect = new net.pottercraft.Ollivanders2.Effect.INCARNATIO_EQUUS(player, Effects.INCARNATIO_EQUUS, 1);
+	}
 }

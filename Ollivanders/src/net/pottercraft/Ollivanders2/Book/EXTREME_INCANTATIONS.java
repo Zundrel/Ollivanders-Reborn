@@ -9,17 +9,15 @@ import net.pottercraft.Ollivanders2.Spell.Spells;
  * @since 2.2.4
  * @author Azami7
  */
-public class EXTREME_INCANTATIONS extends Book
-{
-   public EXTREME_INCANTATIONS ()
-   {
-      shortTitle = title = "Extreme Incantations";
-      author = "Violeta Stitch";
-      branch = O2MagicBranch.CHARMS;
+public class EXTREME_INCANTATIONS extends Book {
+	public EXTREME_INCANTATIONS() {
+		shortTitle = title = "Extreme Incantations";
+		author = "Violeta Stitch";
+		branch = O2MagicBranch.CHARMS;
 
-      spellList.add(Spells.LUMOS_DUO);
-      spellList.add(Spells.BOMBARDA);
-      spellList.add(Spells.COLOVARIA);
-      spellList.add(Spells.LUMOS_MAXIMA);
-   }
+		spellList.add(Spells.LUMOS_DUO);
+		spellList.add(Spells.BOMBARDA);
+		spellList.add(Spells.COLOVARIA);
+		spellList.add(Spells.LUMOS_MAXIMA);
+	}
 }

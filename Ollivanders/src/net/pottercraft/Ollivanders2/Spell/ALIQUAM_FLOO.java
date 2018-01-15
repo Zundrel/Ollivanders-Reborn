@@ -3,6 +3,7 @@ package net.pottercraft.Ollivanders2.Spell;
 import net.pottercraft.Ollivanders2.*;
 import net.pottercraft.Ollivanders2.StationarySpell.StationarySpellObj;
 import net.pottercraft.Ollivanders2.StationarySpell.StationarySpells;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;

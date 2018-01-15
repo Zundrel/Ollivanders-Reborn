@@ -7,12 +7,10 @@ import net.pottercraft.Ollivanders2.O2MagicBranch;
  *
  * @author Azami7
  */
-public class MAGICAL_DRAFTS_AND_POTIONS extends Book
-{
-   public MAGICAL_DRAFTS_AND_POTIONS ()
-   {
-      title = shortTitle = "Magical Drafts and Potions";
-      author = "Arsenius Jigger";
-      branch = O2MagicBranch.POTIONS;
-   }
+public class MAGICAL_DRAFTS_AND_POTIONS extends Book {
+	public MAGICAL_DRAFTS_AND_POTIONS() {
+		title = shortTitle = "Magical Drafts and Potions";
+		author = "Arsenius Jigger";
+		branch = O2MagicBranch.POTIONS;
+	}
 }

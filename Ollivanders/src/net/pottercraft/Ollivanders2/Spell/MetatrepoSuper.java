@@ -1,10 +1,9 @@
 package net.pottercraft.Ollivanders2.Spell;
 
-import net.pottercraft.Ollivanders2.O2MagicBranch;
+import net.pottercraft.Ollivanders2.Ollivanders2;
+
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-
-import net.pottercraft.Ollivanders2.Ollivanders2;
 
 /**
  * Created by Azami7 on 7/1/17.
@@ -13,31 +12,30 @@ import net.pottercraft.Ollivanders2.Ollivanders2;
  *
  * @author Azami7
  */
-public abstract class MetatrepoSuper extends Transfiguration
-{
-   EntityType animalShape;
+public abstract class MetatrepoSuper extends Transfiguration {
+	EntityType animalShape;
 
-   /**
-    * Default constructor for use in generating spell text.  Do not use to cast the spell.
-    */
-   public MetatrepoSuper () { }
+	/**
+	 * Default constructor for use in generating spell text. Do not use to cast
+	 * the spell.
+	 */
+	public MetatrepoSuper() {
+	}
 
-   /**
-    * Constructor for casting the spell.
-    *
-    * @param plugin
-    * @param player
-    * @param name
-    * @param rightWand
-    */
-   public MetatrepoSuper (Ollivanders2 plugin, Player player, Spells name, Double rightWand)
-   {
-      super(plugin, player, name, rightWand);
-   }
+	/**
+	 * Constructor for casting the spell.
+	 *
+	 * @param plugin
+	 * @param player
+	 * @param name
+	 * @param rightWand
+	 */
+	public MetatrepoSuper(Ollivanders2 plugin, Player player, Spells name, Double rightWand) {
+		super(plugin, player, name, rightWand);
+	}
 
-   @Override
-   public void checkEffect ()
-   {
-      simpleTransfigure(animalShape, null);
-   }
+	@Override
+	public void checkEffect() {
+		simpleTransfigure(animalShape, null);
+	}
 }

@@ -5,52 +5,47 @@ import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
-public class OEffect implements Serializable
-{
+public class OEffect implements Serializable {
 
-   /**
-    * Effect object stored in OPlayer
-    */
-   public Effects name;
-   public UUID casterUUID;
-   public int duration;
-   public boolean kill;
+	/**
+	 * Effect object stored in OPlayer
+	 */
+	public Effects name;
+	public UUID casterUUID;
+	public int duration;
+	public boolean kill;
+	private static final long serialVersionUID = 7179595253033316532L;
 
-   public OEffect (Player sender, Effects effect, int duration)
-   {
-      casterUUID = sender.getUniqueId();
-      this.duration = duration;
-      name = effect;
-      kill = false;
-   }
+	public OEffect(Player sender, Effects effect, int duration) {
+		casterUUID = sender.getUniqueId();
+		this.duration = duration;
+		name = effect;
+		kill = false;
+	}
 
-   /**
-    * Ages the OEffect
-    */
-   public void age (int i)
-   {
-      duration -= i;
-      if (duration < 0)
-      {
-         kill();
-      }
-   }
+	/**
+	 * Ages the OEffect
+	 */
+	public void age(int i) {
+		duration -= i;
+		if (duration < 0) {
+			kill();
+		}
+	}
 
-   /**
-    * This kills the effect.
-    */
-   public void kill ()
-   {
-      kill = true;
-   }
+	/**
+	 * This kills the effect.
+	 */
+	public void kill() {
+		kill = true;
+	}
 
-   /**
-    * Returns the caster's UUID
-    *
-    * @return UUID
-    */
-   public UUID getCasterUUID ()
-   {
-      return casterUUID;
-   }
+	/**
+	 * Returns the caster's UUID
+	 *
+	 * @return UUID
+	 */
+	public UUID getCasterUUID() {
+		return casterUUID;
+	}
 }

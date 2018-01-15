@@ -3,6 +3,7 @@ package net.pottercraft.Ollivanders2.Spell;
 import java.util.List;
 
 import net.pottercraft.Ollivanders2.Ollivanders2;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;

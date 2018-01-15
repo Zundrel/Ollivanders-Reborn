@@ -1,244 +1,201 @@
 package net.pottercraft.Ollivanders2;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import net.pottercraft.Ollivanders2.Spell.Spells;
+
 import org.bukkit.inventory.ItemStack;
 
-public class O2Player
-{
-   private String wandWood = null;
-   private String wandCore = null;
-   private String playerName = null;
-   private Ollivanders2 p = null;
-   private Map<Spells, Integer> knownSpells = new HashMap<>();
-   private List<OEffect> effects = new ArrayList<>();
-   //This is the spell loaded into the wand for casting with left click
-   private Spells wandSpell = null;
-   private int souls = 0;
-   private boolean invisible = false;
-   private boolean muggleton = false;
+public class O2Player {
+	private String wandWood = null;
+	private String wandCore = null;
+	private String playerName = null;
+	private Ollivanders2 p = null;
+	private Map<Spells, Integer> knownSpells = new HashMap<>();
+	private List<OEffect> effects = new ArrayList<>();
+	// This is the spell loaded into the wand for casting with left click
+	private Spells wandSpell = null;
+	private int souls = 0;
+	private boolean invisible = false;
+	private boolean muggleton = false;
 
-   private String[] woodArray = {"Spruce", "Jungle", "Birch", "Oak"};
-   private String[] coreArray = {"Spider Eye", "Bone", "Rotten Flesh", "Gunpowder"};
-   private String loreConjunction = " and ";
+	private String[] woodArray = { "Spruce", "Jungle", "Birch", "Oak" };
+	private String[] coreArray = { "Spider Eye", "Bone", "Rotten Flesh", "Gunpowder" };
+	private String loreConjunction = " and ";
 
-   /*
-   public O2Player (Ollivanders2 plugin)
-   {
-      p = plugin;
-   }
-   */
+	/*
+	 * public O2Player (Ollivanders2 plugin) { p = plugin; }
+	 */
 
-   public O2Player (UUID pid, String name, Ollivanders2 plugin)
-   {
-      p = plugin;
-      playerName = name;
+	public O2Player(UUID pid, String name, Ollivanders2 plugin) {
+		p = plugin;
+		playerName = name;
 
-      // set destined wand
-      initDestinedWand(pid);
-   }
+		// set destined wand
+		initDestinedWand(pid);
+	}
 
-   private void initDestinedWand (UUID pid)
-   {
-      // set destined wand
-      int seed = Math.abs(pid.hashCode()%16);
-      int wood = seed/4;
-      int core = seed%4;
+	private void initDestinedWand(UUID pid) {
+		// set destined wand
+		int seed = Math.abs(pid.hashCode() % 16);
+		int wood = seed / 4;
+		int core = seed % 4;
 
-      wandWood = woodArray[wood];
-      wandCore = coreArray[core];
-   }
+		wandWood = woodArray[wood];
+		wandCore = coreArray[core];
+	}
 
-   public boolean isDestinedWand (ItemStack stack)
-   {
-      if (wandWood == null || wandCore == null)
-         return false;
+	public boolean isDestinedWand(ItemStack stack) {
+		if (wandWood == null || wandCore == null)
+			return false;
 
-      if (p.isWand(stack))
-      {
-         List<String> lore = stack.getItemMeta().getLore();
-         String[] comps = lore.get(0).split(loreConjunction);
+		if (p.isWand(stack)) {
+			List<String> lore = stack.getItemMeta().getLore();
+			String[] comps = lore.get(0).split(loreConjunction);
 
-         if (wandWood.equalsIgnoreCase(comps[0]) && wandCore.equalsIgnoreCase(comps[1]))
-         {
-            return true;
-         }
-         else
-         {
-            return false;
-         }
-      }
-      else
-      {
-         return false;
-      }
-   }
+			if (wandWood.equalsIgnoreCase(comps[0]) && wandCore.equalsIgnoreCase(comps[1])) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 
-   public String getDestinedWandLore ()
-   {
-      String wandLore = wandWood + loreConjunction + wandCore;
+	public String getDestinedWandLore() {
+		String wandLore = wandWood + loreConjunction + wandCore;
 
-      return wandLore;
-   }
+		return wandLore;
+	}
 
-   public String getWandWood ()
-   {
-      return wandWood;
-   }
-   
-   public void setWandWood (String wandWood)
-   {
-      if (wandWood != null) {
-    	  this.wandWood = wandWood;
-      }
-   }
+	public String getWandWood() {
+		return wandWood;
+	}
 
-   public String getWandCore ()
-   {
-      return wandCore;
-   }
-   
-   public void setWandCore (String wandCore)
-   {
-      if (wandCore != null) {
-    	  this.wandCore = wandCore;
-      }
-   }
+	public void setWandWood(String wandWood) {
+		if (wandWood != null) {
+			this.wandWood = wandWood;
+		}
+	}
 
-   public String getPlayerName ()
-   {
-      return playerName;
-   }
+	public String getWandCore() {
+		return wandCore;
+	}
 
-   public void setPlayerName (String name)
-   {
-      playerName = name;
-   }
+	public void setWandCore(String wandCore) {
+		if (wandCore != null) {
+			this.wandCore = wandCore;
+		}
+	}
 
-   public int getSpellCount (Spells spell)
-   {
-      int count = 0;
+	public String getPlayerName() {
+		return playerName;
+	}
 
-      if (knownSpells.containsKey(spell))
-      {
-         count = knownSpells.get(spell).intValue();
-      }
+	public void setPlayerName(String name) {
+		playerName = name;
+	}
 
-      return count;
-   }
+	public int getSpellCount(Spells spell) {
+		int count = 0;
 
-   public Map<Spells, Integer> getKnownSpells ()
-   {
-      return knownSpells;
-   }
+		if (knownSpells.containsKey(spell)) {
+			count = knownSpells.get(spell).intValue();
+		}
 
-   public void setSpellCount (Spells spell, int count)
-   {
-      if (knownSpells.containsKey(spell))
-      {
-         knownSpells.replace(spell, new Integer(count));
-      }
-      else
-      {
-         knownSpells.put(spell, new Integer(count));
-      }
-   }
+		return count;
+	}
 
-   public void incrementSpellCount (Spells spell)
-   {
-      if (knownSpells.containsKey(spell))
-      {
-         int curCount = knownSpells.get(spell).intValue();
+	public Map<Spells, Integer> getKnownSpells() {
+		return knownSpells;
+	}
 
-         knownSpells.replace(spell, new Integer(curCount + 1));
-      }
-      else
-      {
-         knownSpells.put(spell, new Integer(1));
-      }
-   }
+	public void setSpellCount(Spells spell, int count) {
+		if (knownSpells.containsKey(spell)) {
+			knownSpells.replace(spell, new Integer(count));
+		} else {
+			knownSpells.put(spell, new Integer(count));
+		}
+	}
 
-   public void resetSpellCount ()
-   {
-      knownSpells.clear();
-   }
+	public void incrementSpellCount(Spells spell) {
+		if (knownSpells.containsKey(spell)) {
+			int curCount = knownSpells.get(spell).intValue();
 
-   public Spells getSpell ()
-   {
-      return wandSpell;
-   }
+			knownSpells.replace(spell, new Integer(curCount + 1));
+		} else {
+			knownSpells.put(spell, new Integer(1));
+		}
+	}
 
-   public void setSpell (Spells spell)
-   {
-      wandSpell = spell;
-   }
+	public void resetSpellCount() {
+		knownSpells.clear();
+	}
 
-   public boolean isInvisible ()
-   {
-      return invisible;
-   }
+	public Spells getSpell() {
+		return wandSpell;
+	}
 
-   public void setInvisible(boolean isInvisible)
-   {
-      invisible = isInvisible;
-   }
+	public void setSpell(Spells spell) {
+		wandSpell = spell;
+	}
 
-   public boolean isMuggleton ()
-   {
-      return muggleton;
-   }
+	public boolean isInvisible() {
+		return invisible;
+	}
 
-   public void setMuggleton (boolean isMuggleton)
-   {
-      muggleton = isMuggleton;
-   }
+	public void setInvisible(boolean isInvisible) {
+		invisible = isInvisible;
+	}
 
-   public int getSouls ()
-   {
-      return souls;
-   }
+	public boolean isMuggleton() {
+		return muggleton;
+	}
 
-   public void setSouls (int s)
-   {
-      souls = s;
-   }
+	public void setMuggleton(boolean isMuggleton) {
+		muggleton = isMuggleton;
+	}
 
-   public void addSoul ()
-   {
-      souls++;
-   }
+	public int getSouls() {
+		return souls;
+	}
 
-   public void subtractSoul()
-   {
-      if (souls > 0)
-      {
-         souls--;
-      }
-   }
+	public void setSouls(int s) {
+		souls = s;
+	}
 
-   public void resetSouls ()
-   {
-      souls = 0;
-   }
+	public void addSoul() {
+		souls++;
+	}
 
-   public List<OEffect> getEffects ()
-   {
-      return effects;
-   }
+	public void subtractSoul() {
+		if (souls > 0) {
+			souls--;
+		}
+	}
 
-   public void addEffect (OEffect e)
-   {
-      effects.add(e);
-   }
+	public void resetSouls() {
+		souls = 0;
+	}
 
-   public void remEffect (OEffect e)
-   {
-      effects.remove(e);
-   }
+	public List<OEffect> getEffects() {
+		return effects;
+	}
 
-   public void resetEffects ()
-   {
-      effects.clear();
-   }
+	public void addEffect(OEffect e) {
+		effects.add(e);
+	}
+
+	public void remEffect(OEffect e) {
+		effects.remove(e);
+	}
+
+	public void resetEffects() {
+		effects.clear();
+	}
 }

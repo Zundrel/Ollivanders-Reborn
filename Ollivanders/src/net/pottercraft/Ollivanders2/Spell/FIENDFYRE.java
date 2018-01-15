@@ -2,8 +2,6 @@ package net.pottercraft.Ollivanders2.Spell;
 
 import java.util.List;
 
-import net.pottercraft.Ollivanders2.StationarySpell.StationarySpellObj;
-import net.pottercraft.Ollivanders2.StationarySpell.StationarySpells;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -11,6 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.Effect;
 
 import net.pottercraft.Ollivanders2.Ollivanders2;
+import net.pottercraft.Ollivanders2.StationarySpell.StationarySpellObj;
+import net.pottercraft.Ollivanders2.StationarySpell.StationarySpells;
 
 /**
  * Spawns magma cubes, blazes, and ghasts

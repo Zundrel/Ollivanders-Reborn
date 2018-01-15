@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import net.pottercraft.Ollivanders2.OLocation;
 import net.pottercraft.Ollivanders2.StationarySpell.StationarySpells;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;

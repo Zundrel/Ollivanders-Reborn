@@ -9,14 +9,12 @@ import net.pottercraft.Ollivanders2.Spell.Spells;
  * @since 2.2.4
  * @author Azami7
  */
-public class HOLIDAYS_WITH_HAGS extends Book
-{
-   public HOLIDAYS_WITH_HAGS ()
-   {
-      title = shortTitle = "Holidays with Hags";
-      author = "Gilderoy Lockhart";
-      branch = O2MagicBranch.DARK_ARTS;
+public class HOLIDAYS_WITH_HAGS extends Book {
+	public HOLIDAYS_WITH_HAGS() {
+		title = shortTitle = "Holidays with Hags";
+		author = "Gilderoy Lockhart";
+		branch = O2MagicBranch.DARK_ARTS;
 
-      spellList.add(Spells.MELOFORS);
-   }
+		spellList.add(Spells.MELOFORS);
+	}
 }

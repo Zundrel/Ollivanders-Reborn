@@ -1,13 +1,12 @@
 package net.pottercraft.Ollivanders2;
 
-import net.pottercraft.Ollivanders2.Spell.Spell;
-import net.pottercraft.Ollivanders2.Spell.Spells;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.ArrayList;
+
+import net.pottercraft.Ollivanders2.Spell.Spells;
 
 /**
  * O2Players
@@ -103,20 +102,18 @@ public class O2Players {
 		gsonLayer.writeO2Players(serializedMap);
 	}
 
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public void loadO2Players() {
 		GsonDataPersistenceLayer gsonLayer = new GsonDataPersistenceLayer(p);
 
 		// load players from the save file, if it exists
-		Map<String, Map<String, String>> serializedMap = gsonLayer
-				.readO2Players();
+		Map<String, Map<String, String>> serializedMap = gsonLayer.readO2Players();
 
 		if (serializedMap == null || serializedMap.size() < 1) {
-			p.getLogger()
-					.info("No saved O2Players, checking for legacy OPlayers save file.");
+			p.getLogger().info("No saved O2Players, checking for legacy OPlayers save file.");
 			Map<UUID, OPlayer> OPlayerMap = new HashMap<>();
 			try {
-				OPlayerMap = (HashMap<UUID, OPlayer>) Ollivanders2.SLAPI
-						.load("plugins/Ollivanders2/OPlayerMap.bin");
+				OPlayerMap = (HashMap<UUID, OPlayer>) Ollivanders2.SLAPI.load("plugins/Ollivanders2/OPlayerMap.bin");
 				p.getLogger().info("Loaded save file OPlayerMap.bin");
 			} catch (Exception e) {
 				p.getLogger().warning("Did not find OPlayerMap.bin");
@@ -126,9 +123,8 @@ public class O2Players {
 		} else if (serializedMap != null && serializedMap.size() >= 1) {
 			for (Entry<String, Map<String, String>> json : serializedMap.entrySet()) {
 				UUID pid = UUID.fromString(json.getKey());
-				O2Player o2Player = new O2Player(pid, p.getServer()
-						.getOfflinePlayer(pid).getName(), p);
-				
+				O2Player o2Player = new O2Player(pid, p.getServer().getOfflinePlayer(pid).getName(), p);
+
 				for (Entry<String, String> values : json.getValue().entrySet()) {
 					Spells spell = Spells.decode(values.getKey());
 					if (spell != null) {
@@ -151,6 +147,7 @@ public class O2Players {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void updateLegacyPlayers(Map<UUID, OPlayer> OPlayerMap) {
 		for (Entry<UUID, OPlayer> e : OPlayerMap.entrySet()) {
 			UUID pid = e.getKey();
@@ -197,11 +194,10 @@ public class O2Players {
 	 * @param o2PlayerMap
 	 * @return
 	 */
-	private Map<String, Map<String, String>> serializeO2Players(
-			Map<UUID, O2Player> o2PlayerMap) {
+	private Map<String, Map<String, String>> serializeO2Players(Map<UUID, O2Player> o2PlayerMap) {
 		Map<String, Map<String, String>> serializedMap = new HashMap<>();
 
-		if (p.debug)
+		if (Ollivanders2.debug)
 			p.getLogger().info("Serializing O2Players...");
 
 		for (Map.Entry<UUID, O2Player> e : o2PlayerMap.entrySet()) {
@@ -214,7 +210,7 @@ public class O2Players {
 			 * Name
 			 */
 			String pName = o2p.getPlayerName();
-			if (p.debug)
+			if (Ollivanders2.debug)
 				p.getLogger().info("\tAdding " + pName + "...");
 
 			playerData.put(nameLabel, pName);
@@ -258,8 +254,7 @@ public class O2Players {
 			Map<Spells, Integer> spells = o2p.getKnownSpells();
 			if (spells != null) {
 				for (Entry<Spells, Integer> s : spells.entrySet()) {
-					playerData.put(s.getKey().toString(), s.getValue()
-							.toString());
+					playerData.put(s.getKey().toString(), s.getValue().toString());
 				}
 			}
 

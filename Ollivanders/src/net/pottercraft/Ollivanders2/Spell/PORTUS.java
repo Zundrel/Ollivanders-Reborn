@@ -3,15 +3,15 @@ package net.pottercraft.Ollivanders2.Spell;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.pottercraft.Ollivanders2.Ollivanders2;
-import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_APPAREBIT;
-import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_EVANESCUNT;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import net.pottercraft.Ollivanders2.Ollivanders2;
+import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_APPAREBIT;
+import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_EVANESCUNT;
 import net.pottercraft.Ollivanders2.StationarySpell.StationarySpellObj;
 
 /**

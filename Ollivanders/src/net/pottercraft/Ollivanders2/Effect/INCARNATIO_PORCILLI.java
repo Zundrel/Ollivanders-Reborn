@@ -1,11 +1,11 @@
 package net.pottercraft.Ollivanders2.Effect;
 
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-
 import net.pottercraft.Ollivanders2.Effects;
 import net.pottercraft.Ollivanders2.Ollivanders2;
+
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
 
 /**
  * Created by Azami7 on 6/27/17.
@@ -15,28 +15,27 @@ import net.pottercraft.Ollivanders2.Ollivanders2;
  * @author lownes
  * @author Azami7
  */
-public class INCARNATIO_PORCILLI extends IncarnatioEffectSuper
-{
-   public INCARNATIO_PORCILLI(Player sender, Effects effect, int duration)
-   {
-      super(sender, effect, duration);
+public class INCARNATIO_PORCILLI extends IncarnatioEffectSuper {
+	private static final long serialVersionUID = -4632568627703163105L;
 
-      animalShape = EntityType.PIG;
-      name = "Pig";
-   }
+	public INCARNATIO_PORCILLI(Player sender, Effects effect, int duration) {
+		super(sender, effect, duration);
 
-   /**
-    * Set traits about this pig.
-    */
-   @Override
-   public void setAnimalType()
-   {
-      int rand = Math.abs(Ollivanders2.random.nextInt() % 100);
-      Pig myAnimal = (Pig)animal;
+		animalShape = EntityType.PIG;
+		name = "Pig";
+	}
 
-      if (rand == 0)
-         myAnimal.setSaddle(true);
+	/**
+	 * Set traits about this pig.
+	 */
+	@Override
+	public void setAnimalType() {
+		int rand = Math.abs(Ollivanders2.random.nextInt() % 100);
+		Pig myAnimal = (Pig) animal;
 
-      animal = myAnimal;
-   }
+		if (rand == 0)
+			myAnimal.setSaddle(true);
+
+		animal = myAnimal;
+	}
 }

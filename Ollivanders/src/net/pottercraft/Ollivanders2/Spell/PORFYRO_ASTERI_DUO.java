@@ -1,6 +1,7 @@
 package net.pottercraft.Ollivanders2.Spell;
 
 import net.pottercraft.Ollivanders2.Ollivanders2;
+
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.entity.Player;

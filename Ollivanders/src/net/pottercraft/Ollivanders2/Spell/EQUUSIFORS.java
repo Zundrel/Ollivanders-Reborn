@@ -13,30 +13,28 @@ import net.pottercraft.Ollivanders2.Ollivanders2;
  * @author lownes
  * @author Azami7
  */
-public final class EQUUSIFORS extends MetatrepoSuper
-{
-   /**
-    * Default constructor for use in generating spell text.  Do not use to cast the spell.
-    */
-   public EQUUSIFORS ()
-   {
-      super();
+public final class EQUUSIFORS extends MetatrepoSuper {
+	/**
+	 * Default constructor for use in generating spell text. Do not use to cast
+	 * the spell.
+	 */
+	public EQUUSIFORS() {
+		super();
 
-      text = "Turns target entity in to a horse.";
-   }
+		text = "Turns target entity in to a horse.";
+	}
 
-   /**
-    * Constructor for casting the spell.
-    *
-    * @param plugin
-    * @param player
-    * @param name
-    * @param rightWand
-    */
-   public EQUUSIFORS (Ollivanders2 plugin, Player player, Spells name, Double rightWand)
-   {
-      super(plugin, player, name, rightWand);
+	/**
+	 * Constructor for casting the spell.
+	 *
+	 * @param plugin
+	 * @param player
+	 * @param name
+	 * @param rightWand
+	 */
+	public EQUUSIFORS(Ollivanders2 plugin, Player player, Spells name, Double rightWand) {
+		super(plugin, player, name, rightWand);
 
-      animalShape = EntityType.HORSE;
-   }
+		animalShape = EntityType.HORSE;
+	}
 }

@@ -9,14 +9,12 @@ import net.pottercraft.Ollivanders2.Spell.Spells;
  * @since 2.2.4
  * @author Azami7
  */
-public class VOYAGES_WITH_VAMPIRES extends Book
-{
-   public VOYAGES_WITH_VAMPIRES ()
-   {
-      title = shortTitle = "Voyages with Vampires";
-      author = "Gilderoy Lockhart";
-      branch = O2MagicBranch.DARK_ARTS;
+public class VOYAGES_WITH_VAMPIRES extends Book {
+	public VOYAGES_WITH_VAMPIRES() {
+		title = shortTitle = "Voyages with Vampires";
+		author = "Gilderoy Lockhart";
+		branch = O2MagicBranch.DARK_ARTS;
 
-      spellList.add(Spells.DEPULSO);
-   }
+		spellList.add(Spells.DEPULSO);
+	}
 }

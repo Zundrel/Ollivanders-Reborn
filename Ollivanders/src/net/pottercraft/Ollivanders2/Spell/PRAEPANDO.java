@@ -1,9 +1,9 @@
 package net.pottercraft.Ollivanders2.Spell;
 
-import net.pottercraft.Ollivanders2.Ollivanders2;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import net.pottercraft.Ollivanders2.Ollivanders2;
 import net.pottercraft.Ollivanders2.StationarySpell.StationarySpells;
 
 /**
