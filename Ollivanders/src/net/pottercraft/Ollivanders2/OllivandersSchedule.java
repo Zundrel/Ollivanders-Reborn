@@ -46,6 +46,7 @@ class OllivandersSchedule implements Runnable {
 		p = plugin;
 	}
 
+	@Override
 	public void run() {
 		try {
 			projectileSched();
@@ -110,7 +111,7 @@ class OllivandersSchedule implements Runnable {
 			for (OEffect effect : playerEffects) {
 				((Effect) effect).checkEffect(p, Bukkit.getPlayer(pid));
 				if (effect.kill) {
-					o2p.remEffect(effect);
+					o2p.removeEffect(effect);
 				}
 			}
 
