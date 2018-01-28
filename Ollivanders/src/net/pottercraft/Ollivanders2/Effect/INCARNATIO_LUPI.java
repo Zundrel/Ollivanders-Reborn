@@ -1,11 +1,11 @@
 package net.pottercraft.Ollivanders2.Effect;
 
-import net.pottercraft.Ollivanders2.Effects;
-import net.pottercraft.Ollivanders2.Ollivanders2;
-
+import org.bukkit.entity.Wolf;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Wolf;
+
+import net.pottercraft.Ollivanders2.Effects;
+import net.pottercraft.Ollivanders2.Ollivanders2;
 
 /**
  * Created by Azami7 on 6/27/17.
@@ -16,27 +16,28 @@ import org.bukkit.entity.Wolf;
  * @version Ollivanders2
  * @author lownes
  */
-public class INCARNATIO_LUPI extends IncarnatioEffectSuper {
-	private static final long serialVersionUID = 4389274386996302619L;
+public class INCARNATIO_LUPI extends IncarnatioEffectSuper
+{
+   public INCARNATIO_LUPI(Player sender, Effects effect, int duration)
+   {
+      super(sender, effect, duration);
 
-	public INCARNATIO_LUPI(Player sender, Effects effect, int duration) {
-		super(sender, effect, duration);
+      animalShape = EntityType.WOLF;
+      name = "Dog";
+   }
 
-		animalShape = EntityType.WOLF;
-		name = "Dog";
-	}
+   /**
+    * Set traits for this wolf.
+    */
+   @Override
+   public void setAnimalType()
+   {
+      Wolf myAnimal = (Wolf)animal;
 
-	/**
-	 * Set traits for this wolf.
-	 */
-	@Override
-	public void setAnimalType() {
-		Wolf myAnimal = (Wolf) animal;
+      int rand = Math.abs(Ollivanders2.random.nextInt() % 10);
+      if (rand == 0)
+         myAnimal.isTamed();
 
-		int rand = Math.abs(Ollivanders2.random.nextInt() % 10);
-		if (rand == 0)
-			myAnimal.isTamed();
-
-		animal = myAnimal;
-	}
+      animal = myAnimal;
+   }
 }

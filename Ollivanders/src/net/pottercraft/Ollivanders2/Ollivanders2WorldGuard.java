@@ -1,16 +1,18 @@
 package net.pottercraft.Ollivanders2;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.managers.RegionManager;
+import static com.sk89q.worldguard.bukkit.BukkitUtil.toVector;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import com.sk89q.worldedit.Vector;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import static com.sk89q.worldguard.bukkit.BukkitUtil.*;
+
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 
 /**
  * Handles all WorldGuard support for Ollivanders2. If WorldGuard is not enabled
@@ -62,7 +64,7 @@ public class Ollivanders2WorldGuard {
 		ApplicableRegionSet regionSet = getWGRegionSet(location);
 		if (regionSet != null && !regionSet.getRegions().isEmpty()) {
 			StateFlag.State state = regionSet.queryState(worldGuard.wrapPlayer(player), flag);
-			if (Ollivanders2.debug)
+			if (p.debug)
 				p.getLogger().info("State of " + flag.toString() + " for " + player.getDisplayName() + " is " + state.toString());
 
 			if (state == StateFlag.State.DENY)
@@ -70,7 +72,7 @@ public class Ollivanders2WorldGuard {
 			else
 				return true;
 		} else {
-			if (Ollivanders2.debug)
+			if (p.debug)
 				p.getLogger().info("No regions defined here.");
 
 			return true;
@@ -87,13 +89,13 @@ public class Ollivanders2WorldGuard {
 		ApplicableRegionSet regionSet = null;
 
 		if (worldGuard != null) {
-			if (Ollivanders2.debug)
+			if (p.debug)
 				p.getLogger().info("Getting region manager...");
 
 			RegionManager regionManager = worldGuard.getRegionManager(location.getWorld());
 
 			if (regionManager != null) {
-				if (Ollivanders2.debug)
+				if (p.debug)
 					p.getLogger().info("Getting regions...");
 
 				Vector locPt = toVector(location);

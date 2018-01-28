@@ -2,7 +2,6 @@ package net.pottercraft.Ollivanders2.Spell;
 
 import net.pottercraft.Ollivanders2.O2MagicBranch;
 import net.pottercraft.Ollivanders2.Ollivanders2;
-
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;

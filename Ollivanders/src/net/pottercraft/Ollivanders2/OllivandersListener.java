@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.pottercraft.Ollivanders2.Book.O2Books;
-import net.pottercraft.Ollivanders2.Book.SpellBookParser;
 import net.pottercraft.Ollivanders2.Effect.BARUFFIOS_BRAIN_ELIXIR;
 import net.pottercraft.Ollivanders2.Effect.LYCANTHROPY;
 import net.pottercraft.Ollivanders2.Effect.MEMORY_POTION;
@@ -65,14 +64,15 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -84,7 +84,6 @@ import org.bukkit.potion.PotionEffect;
  * @author lownes
  * @author Azami7
  */
-@SuppressWarnings("deprecation")
 public class OllivandersListener implements Listener {
 
 	Ollivanders2 p;
@@ -113,7 +112,7 @@ public class OllivandersListener implements Listener {
 		Location toLoc = event.getTo();
 		Location fromLoc = event.getFrom();
 		for (StationarySpellObj spell : p.getStationary()) {
-			if (spell instanceof PROTEGO_TOTALUM && toLoc.getWorld().getUID().equals(spell.location.toLocation().getWorld().getUID()) && fromLoc.getWorld().getUID().equals(spell.location.toLocation().getWorld().getUID())) {
+			if (spell instanceof PROTEGO_TOTALUM && toLoc.getWorld().getUID().equals(spell.location.getWorldUUID()) && fromLoc.getWorld().getUID().equals(spell.location.getWorldUUID())) {
 				int radius = spell.radius;
 				Location spellLoc = spell.location.toLocation();
 				if (((fromLoc.distance(spellLoc) < radius - 0.5 && toLoc.distance(spellLoc) > radius - 0.5) || (toLoc.distance(spellLoc) < radius + 0.5 && fromLoc.distance(spellLoc) > radius + 0.5)) && spell.active) {
@@ -172,13 +171,32 @@ public class OllivandersListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		// Begin code for chat falloff
 		Player sender = event.getPlayer();
 		String message = event.getMessage();
 		List<OEffect> effects = p.getO2Player(sender).getEffects();
+
+		if (Ollivanders2.debug) {
+			p.getLogger().info("onPlayerChat: message = " + message);
+		}
+
+		/**
+		 * Handle player spells that effect the chat. Need to do this first sine
+		 * they may affect the chat message itself, which would change later
+		 * chat effects.
+		 */
 		if (effects != null) {
+			if (Ollivanders2.debug) {
+				p.getLogger().info("onPlayerChat: Handling player effects");
+			}
+
 			for (OEffect effect : effects) {
+				// If SILENCIO is affecting the player, remove all chat
+				// recipients and do not allow a spell cast.
 				if (effect.name == Effects.SILENCIO) {
+					if (Ollivanders2.debug) {
+						p.getLogger().info("onPlayerChat: SILENCIO");
+					}
+
 					if (sender.isPermissionSet("Ollivanders2.BYPASS")) {
 						if (!sender.hasPermission("Ollivanders2.BYPASS")) {
 							event.getRecipients().clear();
@@ -191,32 +209,43 @@ public class OllivandersListener implements Listener {
 				}
 			}
 		}
-		Set<Player> recipients = event.getRecipients();
-		String[] messageWords = message.split(" ");
-		Spells spell;
-		// getLogger().info("Decoding spell");
-		spell = Spells.decode(message);
-		if (messageWords[0].equalsIgnoreCase("Apparate")) {
-			event.setMessage(messageWords[0]);
-			spell = Spells.APPARATE;
-		} else if (messageWords[0].equalsIgnoreCase("Portus")) {
-			event.setMessage(messageWords[0]);
-			spell = Spells.PORTUS;
-		}
-		if (spell != null) {
-			if (!p.canCast(sender, spell, true)) {
-				spell = null;
+
+		/**
+		 * Parse to see if they were casting a spell
+		 */
+		Spells spell = Spells.decode(message);
+		if (Ollivanders2.debug) {
+			if (spell != null) {
+				p.getLogger().info("Spells:decode(): spell is " + spell);
+			} else {
+				p.getLogger().info("Spells:decode(): no spell found");
 			}
 		}
-		double chatDistance = p.getChatDistance();
+
+		/**
+		 * Handle stationary spells that affect chat
+		 */
+		Set<Player> recipients = event.getRecipients();
 		List<StationarySpellObj> stationaries = p.checkForStationary(sender.getLocation());
-		Set<StationarySpellObj> muffliatos = new HashSet<StationarySpellObj>();
+		Set<StationarySpellObj> muffliatos = new HashSet<>();
 		for (StationarySpellObj stationary : stationaries) {
+			if (Ollivanders2.debug) {
+				p.getLogger().info("onPlayerChat: handling stationary spells");
+			}
+
 			if (stationary.name.equals(StationarySpells.MUFFLIATO) && stationary.active) {
 				muffliatos.add(stationary);
 			}
 		}
-		Set<Player> remRecipients = new HashSet<Player>();
+
+		double chatDistance = p.getChatDistance();
+
+		// If sender is in a MUFFLIATO, remove recepients not also in the
+		// MUFFLIATO radius
+
+		// Also handles removing recipients from spells said outside the chat
+		// falloff distance.
+		Set<Player> remRecipients = new HashSet<>();
 		for (Player recipient : recipients) {
 			double distance;
 			try {
@@ -229,7 +258,12 @@ public class OllivandersListener implements Listener {
 					remRecipients.add(recipient);
 				}
 			}
+
 			if (muffliatos.size() > 0) {
+				if (Ollivanders2.debug) {
+					p.getLogger().info("onPlayerChat: MUFFLIATO detected");
+				}
+
 				for (StationarySpellObj muffliato : muffliatos) {
 					Location recLoc = recipient.getLocation();
 					if (!muffliato.isInside(recLoc)) {
@@ -240,6 +274,10 @@ public class OllivandersListener implements Listener {
 		}
 
 		for (Player remRec : remRecipients) {
+			if (Ollivanders2.debug) {
+				p.getLogger().info("onPlayerChat: update recipients");
+			}
+
 			try {
 				if (remRec.isPermissionSet("Ollivanders2.BYPASS")) {
 					if (!remRec.hasPermission("Ollivanders2.BYPASS")) {
@@ -252,7 +290,6 @@ public class OllivandersListener implements Listener {
 				p.getLogger().warning("Chat was unable to be removed due " + "to a unmodifiable set.");
 			}
 		}
-		// End code for chat falloff
 
 		/**
 		 * Handle spell casting
@@ -293,13 +330,11 @@ public class OllivandersListener implements Listener {
 
 				if (spell == Spells.APPARATE) {
 					apparate(sender, words);
-					spell = null;
 				} else if (spell == Spells.PORTUS) {
 					p.addProjectile(new PORTUS(p, sender, Spells.PORTUS, 1.0, words));
-					spell = null;
 				} else {
 					O2Player o2p = p.getO2Player(sender);
-					o2p.setSpell(spell);
+					o2p.setWandSpell(spell);
 					p.setO2Player(sender, o2p);
 				}
 			}
@@ -484,6 +519,10 @@ public class OllivandersListener implements Listener {
 	 * This creates the spell projectile.
 	 */
 	private void createSpellProjectile(Player player, Spells name, double wandC) {
+		if (Ollivanders2Common.libsDisguisesSpells.contains(name) && !Ollivanders2.libsDisguisesEnabled) {
+			return;
+		}
+
 		// spells go here, using any of the three types of m
 		String spellClass = "net.pottercraft.Ollivanders2.Spell." + name.toString();
 		@SuppressWarnings("rawtypes")
@@ -511,11 +550,12 @@ public class OllivandersListener implements Listener {
 			return;
 		}
 
-		// Casting an effect
+		/**
+		 * A left click is used to cast a spell.
+		 */
 		if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
-			// Map<UUID, OPlayer> opmap = p.getOPlayerMap();
 			O2Player o2p = p.getO2Player(player);
-			Spells spell = o2p.getSpell();
+			Spells spell = o2p.getWandSpell();
 			if (spell != null) {
 				double wandC;
 				boolean playerHoldsWand = p.holdsWand(player);
@@ -541,119 +581,60 @@ public class OllivandersListener implements Listener {
 						p.getLogger().info("OllivandersListener:onPlayerInteract: allow cast spell");
 					}
 
-					o2p.setSpell(null);
+					o2p.setWandSpell(null);
 					p.setO2Player(player, o2p);
 				}
 			}
 		}
 
-		// See if it is the right wand and play an effect
+		/**
+		 * A right click is used to determine if the wand is the player's
+		 * destined wand or to set the mastered spell in the wand for non-verbal
+		 * casting if they are sneaking while clicking.
+		 */
 		if (p.holdsWand(player) && (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK)) {
-			// Map<UUID, OPlayer> opmap = p.getOPlayerMap();
 			O2Player o2p = p.getO2Player(player);
-			Spells castSpell = o2p.getSpell();
+			Spells castSpell = o2p.getWandSpell();
 			Location location = player.getLocation();
 			location.setY(location.getY() + 1.6);
 
 			if (p.wandCheck(player) == 1) {
-				if (castSpell == null) {
+				if (o2p.hasMasterSpells() && Ollivanders2.nonVerbalCasting) {
+					if (Ollivanders2.debug) {
+						p.getLogger().info("OllivandersListener:onPlayerInteract: shift mastered spell");
+					}
+
+					if (player.isSneaking()) {
+						o2p.shiftBackMasterSpell();
+					} else {
+						o2p.shiftMasterSpell();
+					}
+
+					Spells spell = o2p.getMasterSpell();
+					if (spell != null) {
+						String spellName = Spells.recode(spell);
+						player.sendMessage("Wand master spell set to " + spellName);
+					} else {
+						if (Ollivanders2.debug) {
+							player.sendMessage("You have not mastered any spells.");
+						}
+					}
+				} else if (!o2p.hasMasterSpells()) {
 					// play a sound and visual effect when they right-click
 					// their destined wand with no spell
 					player.getWorld().playEffect(location, Effect.ENDER_SIGNAL, 0);
 					player.getWorld().playSound(location, Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 				}
 			}
-
-			// Toggle between known spells
-			Spells[] spells = Spells.values();
-			List<Spells> knownSpells = new ArrayList<Spells>();
-			for (Spells spell : spells) {
-				if (p.getSpellNum(event.getPlayer(), spell) >= 100) {
-					// if (spell != Spells.AVADA_KEDAVRA && spell !=
-					// Spells.CRUCIO && spell != Spells.IMPERIO){
-					if (spell != Spells.AVADA_KEDAVRA) {
-						knownSpells.add(spell);
-					}
-				}
-			}
-
-			if (knownSpells.size() > 0) {
-				O2Player oplayer = p.getO2Player(event.getPlayer());
-				Spells spell = oplayer.getSpell();
-				int ind = knownSpells.indexOf(spell);
-				if (ind == -1) {
-					oplayer.setSpell(knownSpells.get(0));
-				} else {
-					int offset = 1;
-					if (event.getPlayer().isSneaking()) {
-						offset = -1;
-					}
-					oplayer.setSpell(knownSpells.get((ind + offset) % knownSpells.size()));
-				}
-				p.setO2Player(event.getPlayer(), oplayer);
-				event.getPlayer().sendMessage(ChatColor.getByChar(p.getConfig().getString("chatColor")) + Spells.firstLetterCapitalize(Spells.recode(oplayer.getSpell())));
-			}
 		}
-
-		// Turns books with the name 'Spell Journal' into a book which shows
-		// spell count.
-
-		ItemStack item = event.getItem();
-		if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) && (item != null)) {
-			if (item.getType() == Material.WRITTEN_BOOK) {
-				ItemMeta imeta = item.getItemMeta();
-				BookMeta bookM = (BookMeta) imeta;
-				if (bookM.getAuthor().equals("cakenggt")) {
-					for (ItemStack madeBook : SpellBookParser.makeBooks(1)) {
-						if (((BookMeta) madeBook.getItemMeta()).getTitle().equals(bookM.getTitle())) {
-							if (item.getAmount() != 1) {
-								madeBook.setAmount(item.getAmount());
-							}
-							player.getInventory().setItemInMainHand(madeBook);
-							imeta = madeBook.getItemMeta();
-							break;
-						}
-					}
-				}
-				SpellBookParser.decode(p, player, imeta);
-				if (bookM.getTitle().equalsIgnoreCase("Spell Journal")) {
-					player.getInventory().setItemInMainHand(makeJournal(event.getPlayer()));
-				}
-			}
-		}
-	}
-
-	/**
-	 * Rewrites the journal book full of the player's experience.
-	 *
-	 * @param player
-	 *            = Player reading the book.
-	 * @return Itemstack of the completed journal.
-	 */
-	public ItemStack makeJournal(Player player) {
-		ItemStack hand = player.getInventory().getItemInMainHand();
-		int amount = hand.getAmount();
-		ItemStack journal = new ItemStack(Material.WRITTEN_BOOK, amount);
-		BookMeta journalM = (BookMeta) journal.getItemMeta();
-		journalM.setTitle("Spell Journal");
-		journalM.setAuthor(player.getName());
-		O2Player op = p.getO2Player(player);
-		StringBuilder sb = new StringBuilder();
-		for (Spells spell : op.getKnownSpells().keySet()) {
-			if (op.getKnownSpells().get(spell) > 0) {
-				sb.append(Spells.firstLetterCapitalize(Spells.recode(spell)) + " : " + op.getKnownSpells().get(spell) + "\n");
-			}
-		}
-		String longPage = sb.toString();
-		journalM.setPages(SpellBookParser.splitEqually(longPage, 250));
-		journal.setItemMeta(journalM);
-		return journal;
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerJoin(PlayerLoginEvent event) {
 		// Map<UUID, OPlayer> map = p.getOPlayerMap();
 		Player player = event.getPlayer();
+		UUID pid = player.getUniqueId();
+
 		O2Player o2p = p.getO2Player(player);
 
 		p.setPlayerTeamColor(event.getPlayer());
@@ -669,7 +650,7 @@ public class OllivandersListener implements Listener {
 			O2Player o2p = p.getO2Player(event.getEntity());
 
 			o2p.resetSpellCount();
-			o2p.setSpell(null);
+			o2p.setWandSpell(null);
 			o2p.resetSouls();
 			o2p.resetEffects();
 
@@ -865,6 +846,7 @@ public class OllivandersListener implements Listener {
 	 *            - BlockPistonRetractEvent
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
+	@SuppressWarnings("deprecation")
 	public void onColloPistonRetract(BlockPistonRetractEvent event) {
 		if (event.isSticky()) {
 			if (p.isInsideOf(StationarySpells.COLLOPORTUS, event.getRetractLocation())) {
@@ -977,32 +959,35 @@ public class OllivandersListener implements Listener {
 	 *            - PlayerPickupItemEvent
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void portkeyPickUp(PlayerPickupItemEvent event) {
-		Player player = event.getPlayer();
-		Item item = event.getItem();
-		ItemMeta meta = item.getItemStack().getItemMeta();
-		List<String> lore;
-		if (meta.hasLore()) {
-			lore = meta.getLore();
-		} else {
-			lore = new ArrayList<String>();
-		}
-		for (String s : lore) {
-			if (s.startsWith("Portkey")) {
-				String[] portArray = s.split(" ");
-				Location to;
-				to = new Location(Bukkit.getServer().getWorld(UUID.fromString(portArray[1])), Double.parseDouble(portArray[2]), Double.parseDouble(portArray[3]), Double.parseDouble(portArray[4]));
-				to.setDirection(player.getLocation().getDirection());
-				for (Entity e : player.getWorld().getEntities()) {
-					if (player.getLocation().distance(e.getLocation()) <= 2) {
-						e.teleport(to);
+	public void portkeyPickUp(EntityPickupItemEvent event) {
+		Entity entity = event.getEntity();
+		if (entity instanceof Player) {
+			Player player = (Player) entity;
+			Item item = event.getItem();
+			ItemMeta meta = item.getItemStack().getItemMeta();
+			List<String> lore;
+			if (meta.hasLore()) {
+				lore = meta.getLore();
+			} else {
+				lore = new ArrayList<>();
+			}
+			for (String s : lore) {
+				if (s.startsWith("Portkey")) {
+					String[] portArray = s.split(" ");
+					Location to;
+					to = new Location(Bukkit.getServer().getWorld(UUID.fromString(portArray[1])), Double.parseDouble(portArray[2]), Double.parseDouble(portArray[3]), Double.parseDouble(portArray[4]));
+					to.setDirection(player.getLocation().getDirection());
+					for (Entity e : player.getWorld().getEntities()) {
+						if (player.getLocation().distance(e.getLocation()) <= 2) {
+							e.teleport(to);
+						}
 					}
+					player.teleport(to);
+					lore.remove(lore.indexOf(s));
+					meta.setLore(lore);
+					item.getItemStack().setItemMeta(meta);
+					return;
 				}
-				player.teleport(to);
-				lore.remove(lore.indexOf(s));
-				meta.setLore(lore);
-				item.getItemStack().setItemMeta(meta);
-				return;
 			}
 		}
 	}
@@ -1194,11 +1179,11 @@ public class OllivandersListener implements Listener {
 
 		Action action = event.getAction();
 		if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
-			Player player = event.getPlayer().getPlayer();
+			Player player = event.getPlayer();
 
 			ItemStack heldItem = player.getInventory().getItemInMainHand();
 			if (heldItem.getType() == Material.WRITTEN_BOOK) {
-				if (Ollivanders2.debug)
+				if (p.debug)
 					p.getLogger().info(player.getDisplayName() + " reading a book and book learning is enabled.");
 
 				// reading a book, if it is a spell book we want to let the
@@ -1206,6 +1191,33 @@ public class OllivandersListener implements Listener {
 				List<String> bookLore = heldItem.getItemMeta().getLore();
 
 				O2Books.readLore(bookLore, player, p);
+			}
+		}
+	}
+
+	/**
+	 * When a user holds their spell journal, replace it with an updated version
+	 * of the book.
+	 *
+	 * @param event
+	 */
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onSpellJournalHold(PlayerItemHeldEvent event) {
+		// only run this if spellJournal is enabled
+		if (event == null || !p.getConfig().getBoolean("spellJournal"))
+			return;
+
+		Player player = event.getPlayer();
+		int slotIndex = event.getNewSlot();
+
+		ItemStack heldItem = player.getInventory().getItem(slotIndex);
+		if (heldItem != null && heldItem.getType() == Material.WRITTEN_BOOK) {
+			BookMeta bookMeta = (BookMeta) heldItem.getItemMeta();
+			if (bookMeta.getTitle().equalsIgnoreCase("Spell Journal")) {
+				O2Player o2Player = p.getO2Player(player);
+				ItemStack spellJournal = o2Player.getSpellJournal();
+
+				player.getInventory().setItem(slotIndex, spellJournal);
 			}
 		}
 	}

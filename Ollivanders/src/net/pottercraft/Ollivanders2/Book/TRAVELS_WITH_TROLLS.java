@@ -9,12 +9,14 @@ import net.pottercraft.Ollivanders2.Spell.Spells;
  * @since 2.2.4
  * @author Azami7
  */
-public class TRAVELS_WITH_TROLLS extends Book {
-	public TRAVELS_WITH_TROLLS() {
-		title = shortTitle = "Traveling with Trolls";
-		author = "Gilderoy Lockhart";
-		branch = O2MagicBranch.DARK_ARTS;
+public class TRAVELS_WITH_TROLLS extends Book
+{
+   public TRAVELS_WITH_TROLLS ()
+   {
+      title = shortTitle = "Traveling with Trolls";
+      author = "Gilderoy Lockhart";
+      branch = O2MagicBranch.DARK_ARTS;
 
-		spellList.add(Spells.VERDIMILLIOUS_DUO);
-	}
+      spellList.add(Spells.VERDIMILLIOUS_DUO);
+   }
 }

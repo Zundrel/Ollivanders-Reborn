@@ -9,14 +9,16 @@ import net.pottercraft.Ollivanders2.Spell.Spells;
  * @since 2.2.4
  * @author Azami7
  */
-public class NUMEROLOGY_AND_GRAMMATICA extends Book {
-	public NUMEROLOGY_AND_GRAMMATICA() {
-		shortTitle = title = "Numerology and Grammatica";
-		author = "Unknown";
-		branch = O2MagicBranch.ARITHMANCY;
+public class NUMEROLOGY_AND_GRAMMATICA extends Book
+{
+   public NUMEROLOGY_AND_GRAMMATICA ()
+   {
+      shortTitle = title = "Numerology and Grammatica";
+      author = "Unknown";
+      branch = O2MagicBranch.ARITHMANCY;
 
-		openingPage = "The study of Arithmancy is not for the weak of mind. With work and dedication, one can learn the secrets of the Universe by understanding the language of numbers.";
+      openingPage = "The study of Arithmancy is not for the weak of mind. With work and dedication, one can learn the secrets of the Universe by understanding the language of numbers.";
 
-		spellList.add(Spells.INFORMOUS);
-	}
+      spellList.add(Spells.INFORMOUS);
+   }
 }

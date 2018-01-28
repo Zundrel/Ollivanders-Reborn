@@ -2,7 +2,6 @@ package net.pottercraft.Ollivanders2.Spell;
 
 import net.pottercraft.Ollivanders2.O2MagicBranch;
 import net.pottercraft.Ollivanders2.Ollivanders2;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -22,7 +21,7 @@ public class SPONGIFY extends BlockTransfigurationSuper
    {
       super();
 
-      flavorText.add("\"Good morning class. Today's lesson will most assuredly involve learning how to cast the Softening Charm, Spongify.\" -Filius Flitwick");
+      flavorText.add("\"Today's lesson will most assuredly involve learning how to cast the Softening Charm, Spongify.\" -Filius Flitwick");
       flavorText.add("The Softening Charm");
 
       text = "Turns the blocks in a radius in to slime blocks.";

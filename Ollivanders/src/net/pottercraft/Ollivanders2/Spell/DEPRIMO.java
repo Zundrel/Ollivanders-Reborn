@@ -3,7 +3,6 @@ package net.pottercraft.Ollivanders2.Spell;
 import java.util.List;
 
 import net.pottercraft.Ollivanders2.Ollivanders2;
-
 import org.bukkit.Material;
 import org.bukkit.material.MaterialData;
 import org.bukkit.block.Block;

@@ -27,6 +27,7 @@ public class O2Players {
 	private String invisibleLabel = "Invisible";
 	private String muggletonLabel = "Muggleton";
 	private String foundWandLabel = "Found_Wand";
+	private String masterSpellLabel = "Master_Spell";
 
 	public O2Players(Ollivanders2 plugin) {
 		p = plugin;
@@ -104,7 +105,6 @@ public class O2Players {
 		gsonLayer.writeO2Players(serializedMap);
 	}
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
 	public void loadO2Players() {
 		GsonDataPersistenceLayer gsonLayer = new GsonDataPersistenceLayer(p);
 
@@ -133,7 +133,6 @@ public class O2Players {
 		updateLegacyPlayers(OPlayerMap);
 	}
 
-	@SuppressWarnings("deprecation")
 	private void updateLegacyPlayers(Map<UUID, OPlayer> OPlayerMap) {
 		for (Entry<UUID, OPlayer> e : OPlayerMap.entrySet()) {
 			UUID pid = e.getKey();
@@ -153,7 +152,7 @@ public class O2Players {
 			o2p.setSouls(player.getSouls());
 			o2p.setInvisible(player.isInvisible());
 			o2p.setMuggleton(player.isMuggleton());
-			o2p.setSpell(player.getSpell());
+			o2p.setWandSpell(player.getSpell());
 
 			Map<Spells, Integer> spells = player.getSpellCount();
 			for (Entry<Spells, Integer> s : spells.entrySet()) {
@@ -166,7 +165,7 @@ public class O2Players {
 			}
 
 			O2PlayerMap.put(pid, o2p);
-			if (Ollivanders2.debug) {
+			if (p.debug) {
 				p.getLogger().info("Loaded player " + o2p.getPlayerName());
 			}
 		}
@@ -186,7 +185,7 @@ public class O2Players {
 	private Map<String, Map<String, String>> serializeO2Players(Map<UUID, O2Player> o2PlayerMap) {
 		Map<String, Map<String, String>> serializedMap = new HashMap<>();
 
-		if (Ollivanders2.debug)
+		if (p.debug)
 			p.getLogger().info("Serializing O2Players...");
 
 		for (Map.Entry<UUID, O2Player> e : o2PlayerMap.entrySet()) {
@@ -199,7 +198,7 @@ public class O2Players {
 			 * Name
 			 */
 			String pName = o2p.getPlayerName();
-			if (Ollivanders2.debug)
+			if (p.debug)
 				p.getLogger().info("\tAdding " + pName + "...");
 
 			playerData.put(nameLabel, pName);
@@ -238,6 +237,14 @@ public class O2Players {
 			if (o2p.foundWand()) {
 				Boolean foundWand = new Boolean(true);
 				playerData.put(foundWandLabel, foundWand.toString());
+			}
+
+			/**
+			 * Master Spell
+			 */
+			Spells spell = o2p.getMasterSpell();
+			if (spell != null) {
+				playerData.put(masterSpellLabel, spell.toString());
 			}
 
 			/**
@@ -323,6 +330,11 @@ public class O2Players {
 					if (foundWand != null) {
 						player.setFoundWand(foundWand.booleanValue());
 					}
+				} else if (label.equalsIgnoreCase(masterSpellLabel)) {
+					Spells spell = common.spellsFromString(value);
+					if (spell != null) {
+						player.setMasterSpell(spell);
+					}
 				} else {
 					// it is a spell
 					Spells spell = common.spellsFromString(label);
@@ -338,7 +350,7 @@ public class O2Players {
 			}
 
 			deserializedMap.put(pid, player);
-			if (Ollivanders2.debug)
+			if (p.debug)
 				p.getLogger().info("Loaded player " + player.getPlayerName());
 		}
 

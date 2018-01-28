@@ -63,7 +63,6 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 		writeJSON(json, o2PlayerJSONFile);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Map<UUID, O2Houses.O2HouseType> readHouses() {
 		String json = readJSON(housesJSONFile);
@@ -71,7 +70,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 			return null;
 
 		Map<String, String> strMap = new HashMap<>();
-		strMap = gson.fromJson(json, strMap.getClass());
+		strMap = (Map<String, String>) gson.fromJson(json, strMap.getClass());
 
 		Map<UUID, O2Houses.O2HouseType> map = new HashMap<>();
 		for (Entry<String, String> entry : strMap.entrySet()) {
@@ -92,7 +91,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 				hType = O2Houses.O2HouseType.valueOf(house);
 			} catch (Exception e) {
 				p.getLogger().warning("Failed to convert house " + house);
-				if (Ollivanders2.debug)
+				if (p.debug)
 					e.printStackTrace();
 
 				continue;
@@ -100,14 +99,13 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 
 			map.put(pid, hType);
 
-			if (Ollivanders2.debug)
+			if (p.debug)
 				p.getLogger().info("Read " + playerID + " : " + house);
 		}
 
 		return map;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Map<O2Houses.O2HouseType, Integer> readHousePoints() {
 		String json = readJSON(housePointsJSONFile);
@@ -115,7 +113,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 			return null;
 
 		Map<String, String> strMap = new HashMap<>();
-		strMap = gson.fromJson(json, strMap.getClass());
+		strMap = (Map<String, String>) gson.fromJson(json, strMap.getClass());
 
 		Map<O2Houses.O2HouseType, Integer> map = new HashMap<>();
 		for (Entry<String, String> entry : strMap.entrySet()) {
@@ -132,7 +130,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 				hType = O2Houses.O2HouseType.valueOf(house);
 			} catch (Exception e) {
 				p.getLogger().warning("Failed to convert house " + house);
-				if (Ollivanders2.debug)
+				if (p.debug)
 					e.printStackTrace();
 
 				continue;
@@ -145,14 +143,13 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 
 			map.put(hType, pts);
 
-			if (Ollivanders2.debug)
+			if (p.debug)
 				p.getLogger().info("Read " + house + " : " + points);
 		}
 
 		return map;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Map<String, String>> readO2Players() {
 		String json = readJSON(o2PlayerJSONFile);
@@ -161,7 +158,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 			return null;
 
 		Map<String, Map<String, String>> strMap = new HashMap<>();
-		strMap = gson.fromJson(json, strMap.getClass());
+		strMap = (Map<String, Map<String, String>>) gson.fromJson(json, strMap.getClass());
 
 		return strMap;
 	}
@@ -187,7 +184,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 			}
 		} catch (Exception e) {
 			p.getLogger().warning("Error creating save file " + saveFile);
-			if (Ollivanders2.debug) {
+			if (p.debug) {
 				e.printStackTrace();
 			}
 
@@ -203,7 +200,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 			bWriter.close();
 		} catch (Exception e) {
 			p.getLogger().warning("Unable to write save file " + saveFile);
-			if (Ollivanders2.debug) {
+			if (p.debug) {
 				e.printStackTrace();
 			}
 
@@ -236,7 +233,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 			}
 		} catch (Exception e) {
 			p.getLogger().warning("Error trying to read " + saveFile + ". Skipping.");
-			if (Ollivanders2.debug) {
+			if (p.debug) {
 				e.printStackTrace();
 			}
 			return null;
@@ -257,7 +254,7 @@ public class GsonDataPersistenceLayer implements DataPersistenceLayer {
 			p.getLogger().info("Loaded save file " + saveFile);
 		} catch (Exception e) {
 			p.getLogger().warning("Error trying to read " + saveFile + ". Skipping.");
-			if (Ollivanders2.debug) {
+			if (p.debug) {
 				e.printStackTrace();
 			}
 		}

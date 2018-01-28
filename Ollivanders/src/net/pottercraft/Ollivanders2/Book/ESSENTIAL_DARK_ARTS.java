@@ -9,20 +9,22 @@ import net.pottercraft.Ollivanders2.Spell.Spells;
  * @since 2.2.4
  * @author Azami7
  */
-public class ESSENTIAL_DARK_ARTS extends Book {
-	public ESSENTIAL_DARK_ARTS() {
-		shortTitle = "Essential Defense";
-		title = "The Essential Defence Against the Dark Arts";
-		author = "Arsenius Jigger";
-		branch = O2MagicBranch.DARK_ARTS;
+public class ESSENTIAL_DARK_ARTS extends Book
+{
+   public ESSENTIAL_DARK_ARTS ()
+   {
+      shortTitle = "Essential Defense";
+      title = "The Essential Defence Against the Dark Arts";
+      author = "Arsenius Jigger";
+      branch = O2MagicBranch.DARK_ARTS;
 
-		spellList.add(Spells.CARPE_RETRACTUM);
-		spellList.add(Spells.GLACIUS);
-		spellList.add(Spells.LUMOS_DUO);
-		spellList.add(Spells.AQUA_ERUCTO);
-		spellList.add(Spells.GLACIUS_DUO);
-		spellList.add(Spells.ALARTE_ASCENDARE);
-		spellList.add(Spells.DISSENDIUM);
-		spellList.add(Spells.FUMOS_DUO);
-	}
+      spellList.add(Spells.CARPE_RETRACTUM);
+      spellList.add(Spells.GLACIUS);
+      spellList.add(Spells.LUMOS_DUO);
+      spellList.add(Spells.AQUA_ERUCTO);
+      spellList.add(Spells.GLACIUS_DUO);
+      spellList.add(Spells.ALARTE_ASCENDARE);
+      spellList.add(Spells.DISSENDIUM);
+      spellList.add(Spells.FUMOS_DUO);
+   }
 }

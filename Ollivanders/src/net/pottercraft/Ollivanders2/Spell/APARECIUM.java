@@ -2,9 +2,9 @@ package net.pottercraft.Ollivanders2.Spell;
 
 import java.util.List;
 
+import net.pottercraft.Ollivanders2.Ollivanders2;
 import org.bukkit.entity.Player;
 
-import net.pottercraft.Ollivanders2.Ollivanders2;
 import net.pottercraft.Ollivanders2.StationarySpell.StationarySpellObj;
 
 /**

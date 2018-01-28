@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -62,7 +63,7 @@ public class Ollivanders2 extends JavaPlugin {
 	private List<SpellProjectile> projectiles = new ArrayList<>();
 	private List<StationarySpellObj> stationary = new ArrayList<>();
 
-	private Set<Prophecy> prophecy = new HashSet<Prophecy>();
+	private Set<Prophecy> prophecy = new HashSet();
 	private Listener playerListener;
 	private OllivandersSchedule schedule;
 	private List<Block> tempBlocks = new ArrayList<>();
@@ -74,8 +75,10 @@ public class Ollivanders2 extends JavaPlugin {
 	private static String mcVersion;
 	public static Random random = new Random();
 	public static boolean debug = false;
+	public static boolean nonVerbalCasting = false;
 	public static Ollivanders2WorldGuard worldGuardO2;
 	public static boolean worldGuardEnabled = false;
+	public static boolean libsDisguisesEnabled = false;
 
 	/**
 	 * onDisable runs when the Minecraft server is shutting down.
@@ -125,7 +128,6 @@ public class Ollivanders2 extends JavaPlugin {
 	 * and data from disk.
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public void onEnable() {
 		playerListener = new OllivandersListener(this);
 		getServer().getPluginManager().registerEvents(playerListener, this);
@@ -225,11 +227,22 @@ public class Ollivanders2 extends JavaPlugin {
 			}
 		}
 
+		Plugin libsDisguises = Bukkit.getServer().getPluginManager().getPlugin("LibsDisguises");
+		if (libsDisguises != null) {
+			libsDisguisesEnabled = true;
+			getLogger().info("LibsDisguises found, enabled entity transfiguration spells.");
+		} else {
+			getLogger().info("LibsDisguises not found, disabling entity transfiguration spells.");
+		}
+
 		if (worldGuardEnabled) {
 			getLogger().info("WorldGuard found, enabled WorldGuard features.");
 		} else {
 			getLogger().info("WorldGuard not found, disabled WorldGuard features.");
 		}
+
+		if (getConfig().getBoolean("nonVerbalSpellCasting"))
+			nonVerbalCasting = true;
 
 		getLogger().info(this + " is now enabled!");
 	}
@@ -246,16 +259,15 @@ public class Ollivanders2 extends JavaPlugin {
 	@Override
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (!isOp(sender)) {
-			return true;
-		}
-
 		if (cmd.getName().equalsIgnoreCase("Ollivanders2") || cmd.getName().equalsIgnoreCase("Olli")) {
 			return runOllivanders(sender, cmd, commandLabel, args);
 		} else if (cmd.getName().equalsIgnoreCase("Okit")) {
 			// okit command deprecated
 			return runOllivanders(sender, cmd, commandLabel, args);
 		} else if (cmd.getName().equalsIgnoreCase("Quidd")) {
+			if (!isOp(sender)) {
+				return true;
+			}
 			return runQuidd(sender, cmd, commandLabel, args);
 		}
 
@@ -295,8 +307,11 @@ public class Ollivanders2 extends JavaPlugin {
 	 * @param args
 	 * @return
 	 */
-	@SuppressWarnings("deprecation")
 	private boolean runOllivanders(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+		if (!isOp(sender)) {
+			return playerSummary(sender);
+		}
+
 		// parse args
 		if (args.length >= 1) {
 			String subCommand = args[0];
@@ -337,10 +352,66 @@ public class Ollivanders2 extends JavaPlugin {
 				}
 			} else if (subCommand.equalsIgnoreCase("books") || subCommand.equalsIgnoreCase("book")) {
 				return runBooks(sender, args);
+			} else if (subCommand.equalsIgnoreCase("summary")) {
+				return playerSummary(sender);
 			}
 		}
 
 		usageMessageOllivanders(sender);
+
+		return true;
+	}
+
+	/**
+	 * Displays a summary of player info for the Ollivanders2 plugin
+	 *
+	 * @param sender
+	 * @return true if the command worked, false otherwise.
+	 */
+	private boolean playerSummary(CommandSender sender) {
+		if (debug)
+			getLogger().info("Running playerSummary");
+
+		Player player = getServer().getPlayer(sender.getName());
+		O2Player o2Player = o2Players.getPlayer(player.getUniqueId());
+
+		String summary = new String("Ollivanders2 player summary:\n\n");
+
+		// wand type
+		if (o2Player.foundWand()) {
+			String wandlore = o2Player.getDestinedWandLore();
+			summary = summary + "\nWand Type: " + wandlore;
+
+			Spells masterSpell = o2Player.getMasterSpell();
+			if (masterSpell != null) {
+				summary = summary + "\nMaster Spell: " + Spells.recode(masterSpell);
+			}
+
+			summary = summary + "\n";
+		}
+
+		// sorted
+		if (houses.isSorted(player)) {
+			String house = houses.getHouseName(houses.getHouse(player));
+			summary = summary + "\nHouse: " + house + "\n";
+		} else {
+			summary = summary + "\nYou have not been sorted.\n";
+		}
+
+		// spells
+		Map<Spells, Integer> spells = o2Player.getKnownSpells();
+
+		if (spells.size() > 0) {
+			summary = summary + "\nKnown Spells and Spell Level:";
+
+			for (Map.Entry<Spells, Integer> e : spells.entrySet()) {
+				summary = summary + "\n" + e.getKey().toString() + " " + e.getValue().toString();
+			}
+		} else {
+			summary = summary + "\nYou have not learned any spells.";
+		}
+
+		sender.sendMessage(ChatColor.getByChar(fileConfig.getString("chatColor")) + summary);
 
 		return true;
 	}
@@ -354,7 +425,7 @@ public class Ollivanders2 extends JavaPlugin {
 	private void usageMessageOllivanders(CommandSender sender) {
 		sender.sendMessage(ChatColor.getByChar(fileConfig.getString("chatColor")) + "You are running Ollivanders2 version " + this.getDescription().getVersion() + "\n" + "\nOllivanders2 commands:" + "\nwands - gives a complete set of wands" + "\nbooks - gives a complete set of spell books" + "\nitems - gives a complete set of items"
 		// + "\nquidd - creates a quidditch pitch"
-		+ "\nhouse - view and manage houses and house points" + "\nreload - reload the Ollivanders2 configs" + "\ndebug - toggles Ollivanders2 plugin debug output\n" + "\n" + "To run a command, type '/ollivanders2 [command]'." + "\nFor example, '/ollivanders2 wands");
+		+ "\nhouse - view and manage houses and house points" + "\nsummary - gives a summary of wand type, house, and known spells" + "\nreload - reload the Ollivanders2 configs" + "\ndebug - toggles Ollivanders2 plugin debug output\n" + "\n" + "To run a command, type '/ollivanders2 [command]'." + "\nFor example, '/ollivanders2 wands");
 	}
 
 	/**
@@ -476,7 +547,6 @@ public class Ollivanders2 extends JavaPlugin {
 	 *            should the sort happen even if the player is already sorted
 	 * @return true unless an error occurs
 	 */
-	@SuppressWarnings("deprecation")
 	private boolean runSort(CommandSender sender, String targetPlayer, String targetHouse, boolean forcesort) {
 		if (debug)
 			getLogger().info("Running house sort");
@@ -735,7 +805,7 @@ public class Ollivanders2 extends JavaPlugin {
 	 * Give a player all the wands.
 	 *
 	 * @param player
-	 * @return true TODO add Acacia wood type
+	 * @return true
 	 */
 	private boolean okitWands(Player player) {
 		String[] woodArray = { "Spruce", "Jungle", "Birch", "Oak" };
@@ -747,7 +817,6 @@ public class Ollivanders2 extends JavaPlugin {
 			for (String core : coreArray) {
 				ItemStack wand = new ItemStack(Material.STICK);
 				List<String> lore = new ArrayList<>();
-				// TODO Make the lore sound better
 				lore.add(wood + " and " + core);
 				ItemMeta meta = wand.getItemMeta();
 				meta.setLore(lore);
@@ -846,7 +915,7 @@ public class Ollivanders2 extends JavaPlugin {
 		UUID pid = player.getUniqueId();
 		O2Player o2p = o2Players.getPlayer(pid);
 
-		if (o2p == null && !(player instanceof NPC)) {
+		if (o2p == null) {
 			o2Players.addPlayer(pid, player.getDisplayName());
 
 			o2p = o2Players.getPlayer(pid);
@@ -919,7 +988,7 @@ public class Ollivanders2 extends JavaPlugin {
 		List<StationarySpellObj> stationaries = getStationary();
 		List<StationarySpellObj> inside = new ArrayList<>();
 		for (StationarySpellObj stationary : stationaries) {
-			if (stationary.location.toLocation().getWorld().getUID().equals(location.getWorld().getUID())) {
+			if (stationary.location.getWorldUUID().equals(location.getWorld().getUID())) {
 				if (stationary.location.distance(location) < stationary.radius) {
 					inside.add(stationary);
 				}
@@ -1007,7 +1076,7 @@ public class Ollivanders2 extends JavaPlugin {
 				String prefix = zone + ".";
 				String type = config.getString(prefix + "type");
 				String world = config.getString(prefix + "world");
-				config.getString(prefix + "region");
+				String region = config.getString(prefix + "region");
 				String areaString = config.getString(prefix + "area");
 				boolean allAllowed = false;
 				boolean allDisallowed = false;
@@ -1063,6 +1132,18 @@ public class Ollivanders2 extends JavaPlugin {
 						}
 					}
 				}
+				/*
+				 * if (type.equalsIgnoreCase("WorldGuard")) { WorldGuardPlugin
+				 * worldGuard = getWorldGuard(); if (worldGuard != null) {
+				 * RegionManager regionManager =
+				 * worldGuard.getRegionManager(Bukkit.getWorld(world)); if
+				 * (regionManager != null) { ProtectedRegion protRegion =
+				 * regionManager.getRegion(region); if (protRegion != null) { if
+				 * (protRegion.contains(BukkitUtil.toVector(loc))) { if
+				 * (allowedSpells.contains(spell) || allAllowed) { return true;
+				 * } if (disallowedSpells.contains(spell) || allDisallowed) {
+				 * cast = false; } } } } } }
+				 */
 			}
 		}
 		return cast;
@@ -1111,7 +1192,7 @@ public class Ollivanders2 extends JavaPlugin {
 		if (stack != null) {
 			if (stack.getType() == Material.STICK || stack.getType() == Material.BLAZE_ROD) {
 				if (stack.getItemMeta().hasLore()) {
-					stack.getItemMeta().getDisplayName();
+					String itemName = stack.getItemMeta().getDisplayName();
 					List<String> lore = stack.getItemMeta().getLore();
 					// TODO refactor this - item name should contain "wand" and
 					// lore should not just contain "and" but have the correct
@@ -1318,32 +1399,35 @@ public class Ollivanders2 extends JavaPlugin {
 			} else if (args[1].equalsIgnoreCase("list")) {
 				ItemStack bookItem = books.getReadingList();
 				bookStack.add(bookItem);
-			} else {
-				// assume it is a book name
-				String bookName = new String();
-				for (int i = 1; i < args.length; i++) {
-					String s = args[i].toUpperCase();
-
-					if (bookName.length() < 1) {
-						// first word
-						bookName = s;
-					} else {
-						bookName = bookName + "_" + s;
-					}
-				}
-				if (debug)
-					getLogger().info("Getting book " + bookName);
-
-				Books bookType;
-				try {
-					bookType = Books.valueOf(bookName);
-				} catch (Exception e) {
-					sender.sendMessage(ChatColor.getByChar(fileConfig.getString("chatColor")) + "No book named \"" + bookName + "\".\n");
+			} else if (args[1].equalsIgnoreCase("give")) {
+				if (args.length < 4) {
 					usageMessageBooks(sender);
+				}
+
+				// next arg is the target player
+				String targetName = args[2];
+				Player targetPlayer = getServer().getPlayer(targetName);
+				if (targetPlayer == null) {
+					sender.sendMessage(ChatColor.getByChar(fileConfig.getString("chatColor")) + "Did not find player \"" + targetName + "\".\n");
+
 					return true;
 				}
 
-				ItemStack bookItem = books.getBook(bookType);
+				// args after "book give [player]" are book name
+				String[] subArgs = Arrays.copyOfRange(args, 3, args.length);
+				ItemStack bookItem = getBookFromArgs(subArgs, sender);
+
+				if (bookItem == null) {
+					return true;
+				}
+
+				bookStack.add(bookItem);
+			} else {
+				ItemStack bookItem = getBookFromArgs(args, sender);
+				if (bookItem == null) {
+					return true;
+				}
+
 				bookStack.add(bookItem);
 			}
 
@@ -1356,13 +1440,52 @@ public class Ollivanders2 extends JavaPlugin {
 	}
 
 	/**
+	 * Get the book
+	 * 
+	 * @param args
+	 * @param sender
+	 * @return
+	 */
+	private ItemStack getBookFromArgs(String[] args, CommandSender sender) {
+		ItemStack bookItem;
+
+		String bookName = new String();
+
+		for (int i = 1; i < args.length; i++) {
+			String s = args[i].toUpperCase();
+
+			if (bookName.length() < 1) {
+				// first word
+				bookName = s;
+			} else {
+				bookName = bookName + "_" + s;
+			}
+		}
+		if (debug)
+			getLogger().info("Getting book " + bookName);
+
+		Books bookType;
+		try {
+			bookType = Books.valueOf(bookName);
+		} catch (Exception e) {
+			sender.sendMessage(ChatColor.getByChar(fileConfig.getString("chatColor")) + "No book named \"" + bookName + "\".\n");
+			usageMessageBooks(sender);
+			return null;
+		}
+
+		bookItem = books.getBook(bookType);
+
+		return bookItem;
+	}
+
+	/**
 	 * Usage message for Books subcommands.
 	 *
 	 * @since 2.2.4
 	 * @param sender
 	 */
 	private void usageMessageBooks(CommandSender sender) {
-		sender.sendMessage(ChatColor.getByChar(fileConfig.getString("chatColor")) + "Books commands: " + "\nlist - gives a book that lists all available books" + "\nallbooks - gives all Ollivanders2 books, this may not fit in your inventory" + "\n<book title> - gives the book with this title, if it exists\n\n" + "Example: /ollivanders2 book standard book of spells grade 1");
+		sender.sendMessage(ChatColor.getByChar(fileConfig.getString("chatColor")) + "Books commands: " + "\nlist - gives a book that lists all available books" + "\nallbooks - gives all Ollivanders2 books, this may not fit in your inventory" + "\n<book title> - gives you the book with this title, if it exists" + "\ngive <player> <book title> - gives target player the book with this title, if it exists\n" + "\nExample: /ollivanders2 book standard book of spells grade 1");
 	}
 
 	/**
@@ -1385,15 +1508,4 @@ public class Ollivanders2 extends JavaPlugin {
 	public void setPlayerTeamColor(Player player) {
 		houses.setChatColor(player);
 	}
-
-	/**
-	 * Add a new player to o2Players.
-	 *
-	 * @param pid
-	 * @param name
-	 */
-	/*
-	 * public void addO2Player (UUID pid, String name) { if (pid == null || name
-	 * == null) return; o2Players.addPlayer(pid, name); }
-	 */
 }

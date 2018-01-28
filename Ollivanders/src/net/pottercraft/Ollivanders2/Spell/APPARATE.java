@@ -1,5 +1,7 @@
 package net.pottercraft.Ollivanders2.Spell;
 
+import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_APPAREBIT;
+import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_EVANESCUNT;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -7,8 +9,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import net.pottercraft.Ollivanders2.Ollivanders2;
-import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_APPAREBIT;
-import net.pottercraft.Ollivanders2.StationarySpell.NULLUM_EVANESCUNT;
 import net.pottercraft.Ollivanders2.StationarySpell.StationarySpellObj;
 
 /**

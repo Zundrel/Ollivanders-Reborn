@@ -14,7 +14,6 @@ public class OEffect implements Serializable {
 	public UUID casterUUID;
 	public int duration;
 	public boolean kill;
-	private static final long serialVersionUID = 7179595253033316532L;
 
 	public OEffect(Player sender, Effects effect, int duration) {
 		casterUUID = sender.getUniqueId();

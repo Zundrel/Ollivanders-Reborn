@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import net.pottercraft.Ollivanders2.Spell.Spells;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 /**
  * Ollivanders2 player
@@ -29,6 +32,8 @@ public class O2Player {
 	private List<OEffect> effects = new ArrayList<>();
 	// This is the spell loaded into the wand for casting with left click
 	private Spells wandSpell = null;
+	private Spells masterSpell = null;
+	private ArrayList<Spells> masteredSpells = new ArrayList<>();
 	private int souls = 0;
 	private boolean invisible = false;
 	private boolean muggleton = false;
@@ -38,8 +43,6 @@ public class O2Player {
 	 * Wand wood types
 	 */
 	private ArrayList<String> woodArray = new ArrayList<String>() {
-		private static final long serialVersionUID = 632883790500483705L;
-
 		{
 			add("Spruce");
 			add("Jungle");
@@ -52,8 +55,6 @@ public class O2Player {
 	 * Wand core types
 	 */
 	private ArrayList<String> coreArray = new ArrayList<String>() {
-		private static final long serialVersionUID = -1939508545624916005L;
-
 		{
 			add("Spider Eye");
 			add("Bone");
@@ -240,6 +241,25 @@ public class O2Player {
 		} else {
 			knownSpells.put(spell, new Integer(count));
 		}
+
+		// remove spell from mastered list if level is less than 100
+		if (count < 100) {
+			removeMasteredSpell(spell);
+		}
+		// add spell to mastered list if level is at or over 100
+		else {
+			addMasteredSpell(spell);
+		}
+	}
+
+	/**
+	 * Set the wand's mastered spell.
+	 *
+	 * @param spell
+	 *            the mastered spell
+	 */
+	public void setMasterSpell(Spells spell) {
+		masterSpell = spell;
 	}
 
 	/**
@@ -251,8 +271,11 @@ public class O2Player {
 	public void incrementSpellCount(Spells spell) {
 		if (knownSpells.containsKey(spell)) {
 			int curCount = knownSpells.get(spell).intValue();
-
 			knownSpells.replace(spell, new Integer(curCount + 1));
+
+			if (curCount + 1 >= 100) {
+				addMasteredSpell(spell);
+			}
 		} else {
 			knownSpells.put(spell, new Integer(1));
 		}
@@ -263,6 +286,7 @@ public class O2Player {
 	 */
 	public void resetSpellCount() {
 		knownSpells.clear();
+		masteredSpells.clear();
 	}
 
 	/**
@@ -270,7 +294,10 @@ public class O2Player {
 	 *
 	 * @return the loaded spell
 	 */
-	public Spells getSpell() {
+	public Spells getWandSpell() {
+		if (wandSpell == null && masterSpell != null && Ollivanders2.nonVerbalCasting)
+			return masterSpell;
+
 		return wandSpell;
 	}
 
@@ -280,7 +307,7 @@ public class O2Player {
 	 * @param spell
 	 *            the spell to load
 	 */
-	public void setSpell(Spells spell) {
+	public void setWandSpell(Spells spell) {
 		wandSpell = spell;
 	}
 
@@ -413,5 +440,152 @@ public class O2Player {
 	 */
 	public boolean foundWand() {
 		return foundWand;
+	}
+
+	/**
+	 * Returns this player's spell journal, a book with all known spells and
+	 * their level.
+	 *
+	 * @return the player's spell journal
+	 */
+	public ItemStack getSpellJournal() {
+		ItemStack spellJournal = new ItemStack(Material.WRITTEN_BOOK, 1);
+
+		BookMeta bookMeta = (BookMeta) spellJournal.getItemMeta();
+		bookMeta.setAuthor(playerName);
+		bookMeta.setTitle("Spell Journal");
+
+		String content = new String("Spell Journal\n\n");
+		int lineCount = 2;
+		for (Entry<Spells, Integer> e : knownSpells.entrySet()) {
+			// if we have done 14 lines, make a new page
+			if (lineCount == 14) {
+				bookMeta.addPage(content);
+				lineCount = 0;
+				content = "";
+			}
+
+			// add a newline to all lines except the first
+			if (lineCount != 0) {
+				content = content + "\n";
+			}
+
+			String line = Spells.recode(e.getKey()) + " " + e.getValue().toString();
+			content = content + line;
+
+			lineCount++;
+			// ~18 characters per line, this will likely wrap
+			if (line.length() > 18) {
+				lineCount++;
+			}
+		}
+
+		bookMeta.addPage(content);
+
+		bookMeta.setGeneration(BookMeta.Generation.ORIGINAL);
+		spellJournal.setItemMeta(bookMeta);
+
+		return spellJournal;
+	}
+
+	/**
+	 * Add a spell to the list of spells that have a level of 100 or more. If
+	 * this spell is the first mastered spell then also load it to the wand
+	 * master spell.
+	 *
+	 * @param spell
+	 *            the spell to add
+	 */
+	private void addMasteredSpell(Spells spell) {
+		if (!masteredSpells.contains(spell)) {
+			if (masteredSpells.size() < 1) {
+				// this is their first mastered spell, set it on their wand
+				masterSpell = spell;
+			}
+			masteredSpells.add(spell);
+		}
+	}
+
+	/**
+	 * Remove a mastered spell when the level goes below 100 or is reset. If
+	 * this spell is also set as the wand's master spell, shift it to the next
+	 * mastered spell or remove if there are none.
+	 *
+	 * @param spell
+	 *            the spell to remove
+	 */
+	private void removeMasteredSpell(Spells spell) {
+		if (masteredSpells.contains(spell)) {
+			// first remove this from the loaded master spell if it is that
+			// spell
+			if (masterSpell == spell) {
+				if (masteredSpells.size() > 1) {
+					shiftMasterSpell();
+				} else {
+					masterSpell = null;
+				}
+			}
+
+			masteredSpells.remove(spell);
+		}
+	}
+
+	/**
+	 * @return If player has any mastered spells.
+	 */
+	public boolean hasMasterSpells() {
+		return masteredSpells.size() >= 1;
+	}
+
+	/**
+	 * Shift the wand's master spell to the next spell.
+	 */
+	public void shiftMasterSpell() {
+		// shift to the next spell if there is more than one mastered spell
+		if (masteredSpells.size() >= 1) {
+			if (masterSpell == null || masteredSpells.size() == 1) {
+				masterSpell = masteredSpells.get(0);
+			} else {
+				int i = masteredSpells.indexOf(masterSpell);
+
+				if (i == (masteredSpells.size() - 1)) {
+					// spell is the last in the array, roll over
+					masterSpell = masteredSpells.get(0);
+				} else {
+					masterSpell = masteredSpells.get(i + 1);
+				}
+			}
+		} else {
+			masterSpell = null;
+		}
+	}
+
+	public void shiftBackMasterSpell() {
+		// shift to the previous spell if there is more than one mastered spell
+		if (masteredSpells.size() >= 1) {
+			if (masterSpell == null || masteredSpells.size() == 1) {
+				masterSpell = masteredSpells.get(0);
+			} else {
+				int i = masteredSpells.indexOf(masterSpell);
+
+				if (i == 0) {
+					// spell is the first in the array, roll over
+					masterSpell = masteredSpells.get(masteredSpells.size() - 1);
+				} else {
+					masterSpell = masteredSpells.get(i - 1);
+				}
+			}
+		} else {
+			masterSpell = null;
+		}
+	}
+
+	/**
+	 * Get the wand's master spell.
+	 *
+	 * @return the wand's master spell
+	 */
+	public Spells getMasterSpell() {
+		return masterSpell;
 	}
 }

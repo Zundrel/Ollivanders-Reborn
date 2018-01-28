@@ -17,42 +17,46 @@ import net.pottercraft.Ollivanders2.Ollivanders2;
  * @author lownes
  * @author Azami7
  */
-public final class CALAMUS extends Transfiguration {
-	/**
-	 * Default constructor for use in generating spell text. Do not use to cast
-	 * the spell.
-	 */
-	public CALAMUS() {
-		super();
+public final class CALAMUS extends Transfiguration
+{
+   /**
+    * Default constructor for use in generating spell text.  Do not use to cast the spell.
+    */
+   public CALAMUS ()
+   {
+      super();
 
-		text = "Turns sticks in to arrows.";
-	}
+      text = "Turns sticks in to arrows.";
+   }
 
-	/**
-	 * Constructor for casting the spell.
-	 *
-	 * @param plugin
-	 * @param player
-	 * @param name
-	 * @param rightWand
-	 */
-	public CALAMUS(Ollivanders2 plugin, Player player, Spells name, Double rightWand) {
-		super(plugin, player, name, rightWand);
-	}
+   /**
+    * Constructor for casting the spell.
+    *
+    * @param plugin
+    * @param player
+    * @param name
+    * @param rightWand
+    */
+   public CALAMUS(Ollivanders2 plugin, Player player, Spells name, Double rightWand)
+   {
+      super(plugin, player, name, rightWand);
+   }
 
-	public void checkEffect() {
-		move();
-		List<Item> items = super.getItems(1);
-		for (Item item : items) {
-			Material mat = item.getItemStack().getType();
-			if (mat == Material.STICK) {
-				int amount = item.getItemStack().getAmount();
-				Location loc = item.getLocation();
-				ItemStack drop = new ItemStack(Material.ARROW);
-				drop.setAmount(amount);
-				loc.getWorld().dropItem(loc, drop);
-				item.remove();
-			}
-		}
-	}
+   public void checkEffect()
+   {
+      move();
+      List<Item> items = super.getItems(1);
+      for (Item item : items){
+         Material mat = item.getItemStack().getType();
+         if (mat == Material.STICK)
+         {
+            int amount = item.getItemStack().getAmount();
+            Location loc = item.getLocation();
+            ItemStack drop = new ItemStack(Material.ARROW);
+            drop.setAmount(amount);
+            loc.getWorld().dropItem(loc, drop);
+            item.remove();
+         }
+      }
+   }
 }

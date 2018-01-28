@@ -46,7 +46,6 @@ class OllivandersSchedule implements Runnable {
 		p = plugin;
 	}
 
-	@Override
 	public void run() {
 		try {
 			projectileSched();
@@ -253,6 +252,7 @@ class OllivandersSchedule implements Runnable {
 						}
 						if (muggletons.size() == 0) {
 							viewer.hidePlayer(p, player);
+
 						} else {
 							for (REPELLO_MUGGLETON muggleton : muggletons) {
 								if (hasCloak || (!muggleton.isInside(viewer.getLocation()) && muggleton.active)) {
@@ -327,7 +327,7 @@ class OllivandersSchedule implements Runnable {
 
 		for (World world : p.getServer().getWorlds()) {
 			for (Player player : world.getPlayers()) {
-				if (player.getTargetBlock((Set<Material>) null, 100).getType() != ball || !player.isSneaking()) {
+				if (player.getTargetBlock((java.util.Set) null, 100).getType() != ball || !player.isSneaking()) {
 					return;
 				}
 				double experience = p.getO2Player(player).getSpellCount(Spells.INFORMOUS);

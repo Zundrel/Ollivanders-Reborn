@@ -9,12 +9,14 @@ import net.pottercraft.Ollivanders2.Spell.Spells;
  * @since 2.2.4
  * @author Azami7
  */
-public class GADDING_WITH_GHOULS extends Book {
-	public GADDING_WITH_GHOULS() {
-		title = shortTitle = "Gadding with Ghouls";
-		author = "Gilderoy Lockhart";
-		branch = O2MagicBranch.DARK_ARTS;
+public class GADDING_WITH_GHOULS extends Book
+{
+   public GADDING_WITH_GHOULS ()
+   {
+      title = shortTitle = "Gadding with Ghouls";
+      author = "Gilderoy Lockhart";
+      branch = O2MagicBranch.DARK_ARTS;
 
-		spellList.add(Spells.MOLLIARE);
-	}
+      spellList.add(Spells.MOLLIARE);
+   }
 }
