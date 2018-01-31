@@ -585,6 +585,15 @@ public class OllivandersListener implements Listener {
 					o2p.setWandSpell(null);
 					p.setO2Player(player, o2p);
 				}
+
+				if (spellc >= 100 && wandC != 1) {
+					if (Ollivanders2.debug) {
+						p.getLogger().info("OllivandersListener:onPlayerInteract: allow cast spell");
+					}
+
+					o2p.setMasterSpell(null);
+					p.setO2Player(player, o2p);
+				}
 			}
 		}
 
