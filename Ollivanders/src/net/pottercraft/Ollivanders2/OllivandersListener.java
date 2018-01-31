@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import net.minecraft.server.v1_12_R1.EnumChatFormat;
 import net.pottercraft.Ollivanders2.Book.O2Books;
 import net.pottercraft.Ollivanders2.Effect.BARUFFIOS_BRAIN_ELIXIR;
 import net.pottercraft.Ollivanders2.Effect.LYCANTHROPY;
@@ -599,7 +600,7 @@ public class OllivandersListener implements Listener {
 			location.setY(location.getY() + 1.6);
 
 			if (p.wandCheck(player) == 1) {
-				if (o2p.hasMasterSpells() && Ollivanders2.nonVerbalCasting) {
+				if (o2p.hasMasterSpells() && p.getConfig().getBoolean("nonVerbalSpellCasting")) {
 					if (Ollivanders2.debug) {
 						p.getLogger().info("OllivandersListener:onPlayerInteract: shift mastered spell");
 					}
@@ -613,7 +614,7 @@ public class OllivandersListener implements Listener {
 					Spells spell = o2p.getMasterSpell();
 					if (spell != null) {
 						String spellName = Spells.recode(spell);
-						player.sendMessage("Wand master spell set to " + spellName);
+						player.sendMessage("Spell set to " + EnumChatFormat.AQUA + spellName.substring(0, 1).toUpperCase() + spellName.substring(1));
 					} else {
 						if (Ollivanders2.debug) {
 							player.sendMessage("You have not mastered any spells.");

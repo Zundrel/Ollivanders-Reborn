@@ -75,7 +75,6 @@ public class Ollivanders2 extends JavaPlugin {
 	private static String mcVersion;
 	public static Random random = new Random();
 	public static boolean debug = false;
-	public static boolean nonVerbalCasting = false;
 	public static Ollivanders2WorldGuard worldGuardO2;
 	public static boolean worldGuardEnabled = false;
 	public static boolean libsDisguisesEnabled = false;
@@ -240,9 +239,6 @@ public class Ollivanders2 extends JavaPlugin {
 		} else {
 			getLogger().info("WorldGuard not found, disabled WorldGuard features.");
 		}
-
-		if (getConfig().getBoolean("nonVerbalSpellCasting"))
-			nonVerbalCasting = true;
 
 		getLogger().info(this + " is now enabled!");
 	}

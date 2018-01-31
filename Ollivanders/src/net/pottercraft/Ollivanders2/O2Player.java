@@ -295,7 +295,7 @@ public class O2Player {
 	 * @return the loaded spell
 	 */
 	public Spells getWandSpell() {
-		if (wandSpell == null && masterSpell != null && Ollivanders2.nonVerbalCasting)
+		if (wandSpell == null && masterSpell != null && p.getConfig().getBoolean("nonVerbalSpellCasting"))
 			return masterSpell;
 
 		return wandSpell;
@@ -471,7 +471,7 @@ public class O2Player {
 			}
 
 			String line = Spells.recode(e.getKey()) + " " + e.getValue().toString();
-			content = content + line;
+			content = content + line.substring(0, 1).toUpperCase() + line.substring(1);
 
 			lineCount++;
 			// ~18 characters per line, this will likely wrap
