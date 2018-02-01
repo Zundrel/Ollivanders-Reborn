@@ -331,6 +331,7 @@ public class OllivandersListener implements Listener {
 
 				if (spell == Spells.APPARATE) {
 					apparate(sender, words);
+					event.setMessage("apparate");
 				} else if (spell == Spells.PORTUS) {
 					p.addProjectile(new PORTUS(p, sender, Spells.PORTUS, 1.0, words));
 				} else {

@@ -471,7 +471,7 @@ public class O2Player {
 			}
 
 			String line = Spells.recode(e.getKey()) + " " + e.getValue().toString();
-			content = content + line.substring(0, 1).toUpperCase() + line.substring(1);
+			content = content + line;
 
 			lineCount++;
 			// ~18 characters per line, this will likely wrap
